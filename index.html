@@ -2,38 +2,771 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Calculateur de Formule</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculateur Oméga-3 Canin — Arthrose</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: Arial; margin: 50px; }
-    input { margin: 5px; }
+    body { font-family: 'Inter', sans-serif; }
+    .modal { display: none; }
+    .modal.active { display: flex; }
   </style>
 </head>
-<body>
+<body class="bg-slate-50 min-h-screen text-gray-800">
 
-  <h2>Calculateur de Formule : (a + b) × c</h2>
+<!-- HEADER -->
+<header class="bg-emerald-700 text-white shadow">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center gap-4">
+    <div class="bg-emerald-600 p-2.5 rounded-xl">
+      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+      </svg>
+    </div>
+    <div>
+      <h1 class="text-lg font-semibold tracking-tight">Calculateur de complémentation en oméga-3</h1>
+      <p class="text-emerald-200 text-xs mt-0.5">Prise en charge nutritionnelle de l'arthrose canine — Usage vétérinaire</p>
+    </div>
+  </div>
+</header>
 
-  <label for="a">a :</label>
-  <input type="number" id="a" />
+<!-- MAIN -->
+<main class="max-w-6xl mx-auto px-4 py-6">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
 
-  <label for="b">b :</label>
-  <input type="number" id="b" />
+    <!-- ===== LEFT COLUMN ===== -->
+    <div class="space-y-5">
 
-  <label for="c">c :</label>
-  <input type="number" id="c" />
+      <!-- PATIENT -->
+      <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-1 h-5 bg-emerald-500 rounded-full"></div>
+          <h2 class="font-semibold">Informations patient</h2>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Nom du propriétaire</label>
+            <input type="text" id="proprietaire" placeholder="Dupont" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition" oninput="calculate()">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Nom du chien</label>
+            <input type="text" id="nom_chien" placeholder="Rex" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition" oninput="calculate()">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Poids actuel (kg)</label>
+            <input type="number" id="poids" placeholder="15" min="0.5" max="100" step="0.1" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition" oninput="calculate()">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">NEC (1–9)</label>
+            <select id="nec" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition bg-white" onchange="calculate()">
+              <option value="">— Sélectionner —</option>
+              <option value="1">1 — Émacié</option>
+              <option value="2">2 — Très maigre</option>
+              <option value="3">3 — Maigre</option>
+              <option value="4">4 — Sous-optimal</option>
+              <option value="5">5 — Idéal</option>
+              <option value="6">6 — Légèrement en surpoids</option>
+              <option value="7">7 — En surpoids</option>
+              <option value="8">8 — Obèse</option>
+              <option value="9">9 — Sévèrement obèse</option>
+            </select>
+          </div>
+          <div class="col-span-2">
+            <label class="block text-xs font-medium text-gray-500 mb-1">Ration journalière (g/jour)</label>
+            <input type="number" id="ration" placeholder="300" min="0" step="1" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition" oninput="calculate()">
+          </div>
+        </div>
+      </section>
 
-  <button onclick="calculer()">Calculer</button>
+      <!-- ALIMENTATION -->
+      <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <div class="w-1 h-5 bg-emerald-500 rounded-full"></div>
+            <h2 class="font-semibold">Alimentation</h2>
+          </div>
+          <button onclick="openModal('modal-croquettes')" class="text-xs text-emerald-600 hover:text-emerald-800 font-medium flex items-center gap-1 transition">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+            Gérer la base de données
+          </button>
+        </div>
+        <label class="block text-xs font-medium text-gray-500 mb-1">Aliment sélectionné</label>
+        <select id="select-croquette" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition bg-white" onchange="onCroquetteChange()">
+          <option value="">— Sélectionner un aliment —</option>
+        </select>
+        <div id="croquette-info" class="hidden mt-3 p-3 bg-slate-50 rounded-xl text-xs text-gray-600"></div>
+      </section>
 
-  <h3>Résultat : <span id="resultat">?</span></h3>
+      <!-- COMPLEMENT -->
+      <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-1 h-5 bg-emerald-500 rounded-full"></div>
+          <h2 class="font-semibold">Source d'oméga-3</h2>
+        </div>
+        <div class="flex gap-3 mb-4">
+          <label class="flex-1 flex items-center gap-2.5 p-3 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-emerald-200 transition has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50">
+            <input type="radio" name="complement-type" value="huile" checked onchange="onComplementTypeChange()" class="accent-emerald-600">
+            <div><div class="text-sm font-medium">Huile de saumon</div><div class="text-xs text-gray-400">Liquide</div></div>
+          </label>
+          <label class="flex-1 flex items-center gap-2.5 p-3 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-emerald-200 transition has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50">
+            <input type="radio" name="complement-type" value="gelules" onchange="onComplementTypeChange()" class="accent-emerald-600">
+            <div><div class="text-sm font-medium">Gélules oméga-3</div><div class="text-xs text-gray-400">Capsules</div></div>
+          </label>
+        </div>
 
-  <script>
-    function calculer() {
-      const a = parseFloat(document.getElementById('a').value);
-      const b = parseFloat(document.getElementById('b').value);
-      const c = parseFloat(document.getElementById('c').value);
-      const resultat = (a + b) * c;
-      document.getElementById('resultat').textContent = isNaN(resultat) ? "Erreur" : resultat;
+        <!-- Huile -->
+        <div id="section-huile">
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-xs font-medium text-gray-500">Produit sélectionné</label>
+            <button onclick="openModal('modal-huiles')" class="text-xs text-emerald-600 hover:text-emerald-800 font-medium flex items-center gap-1 transition">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+              Gérer
+            </button>
+          </div>
+          <select id="select-huile" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition bg-white" onchange="onHuileChange()">
+            <option value="">— Sélectionner une huile —</option>
+          </select>
+          <div id="huile-info" class="hidden mt-2 p-3 bg-slate-50 rounded-xl text-xs text-gray-600"></div>
+        </div>
+
+        <!-- Gélules -->
+        <div id="section-gelules" class="hidden">
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-xs font-medium text-gray-500">Produit sélectionné</label>
+            <button onclick="openModal('modal-gelules')" class="text-xs text-emerald-600 hover:text-emerald-800 font-medium flex items-center gap-1 transition">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+              Gérer
+            </button>
+          </div>
+          <select id="select-gelule" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition bg-white" onchange="onGeluleChange()">
+            <option value="">— Sélectionner des gélules —</option>
+          </select>
+          <div id="gelule-info" class="hidden mt-2 p-3 bg-slate-50 rounded-xl text-xs text-gray-600"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===== RIGHT COLUMN — RESULTS ===== -->
+    <div class="lg:sticky lg:top-6">
+      <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center gap-2 mb-5">
+          <div class="w-1 h-5 bg-blue-500 rounded-full"></div>
+          <h2 class="font-semibold">Résultats</h2>
+        </div>
+
+        <div id="results-empty" class="text-center py-12 text-gray-400">
+          <svg class="w-12 h-12 mx-auto mb-3 opacity-25" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+          <p class="text-sm">Renseignez le patient,<br>sélectionnez un aliment et une source d'oméga-3</p>
+        </div>
+
+        <div id="results-content" class="hidden space-y-4">
+          <div class="p-3 bg-gray-50 rounded-xl text-sm text-gray-600" id="patient-summary"></div>
+
+          <!-- Warning -->
+          <div id="warning-box" class="hidden p-3 bg-amber-50 border border-amber-200 rounded-xl">
+            <div class="flex gap-2">
+              <svg class="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              <div>
+                <div class="text-xs font-semibold text-amber-700">Avertissement — Limite de sécurité dépassée</div>
+                <div class="text-xs text-amber-600 mt-0.5" id="warning-text"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Metrics grid -->
+          <div class="grid grid-cols-2 gap-3">
+            <div class="p-3 bg-emerald-50 rounded-xl col-span-2">
+              <div class="text-xs text-emerald-600 font-medium">Besoins journaliers EPA+DHA (arthrose)</div>
+              <div class="text-3xl font-bold text-emerald-700 mt-1" id="res-besoins">—</div>
+              <div class="text-xs text-emerald-500">mg/jour</div>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-xl">
+              <div class="text-xs text-gray-500 font-medium">Apport croquettes</div>
+              <div class="text-2xl font-bold text-gray-700 mt-1" id="res-croque">—</div>
+              <div class="text-xs text-gray-400">mg EPA+DHA/jour</div>
+            </div>
+            <div class="p-3 bg-blue-50 rounded-xl">
+              <div class="text-xs text-blue-600 font-medium">Déficit à combler</div>
+              <div class="text-2xl font-bold text-blue-700 mt-1" id="res-deficit">—</div>
+              <div class="text-xs text-blue-400">mg EPA+DHA/jour</div>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-xl col-span-2">
+              <div class="text-xs text-gray-500 font-medium">Énergie métabolisable de l'aliment</div>
+              <div class="text-xl font-bold text-gray-700 mt-1" id="res-em">—</div>
+              <div class="text-xs text-gray-400">kcal/100 g</div>
+            </div>
+          </div>
+
+          <!-- Dose -->
+          <div id="dose-box" class="hidden p-4 bg-emerald-600 text-white rounded-xl">
+            <div class="text-xs font-medium text-emerald-200 mb-1">Dose journalière recommandée</div>
+            <div class="text-3xl font-bold" id="res-dose">—</div>
+            <div class="text-sm text-emerald-200 mt-0.5" id="res-dose-unit"></div>
+            <div class="mt-3 pt-3 border-t border-emerald-500 flex items-center justify-between">
+              <div class="text-xs text-emerald-200">Coût mensuel estimé</div>
+              <div class="font-semibold text-sm" id="res-cout">—</div>
+            </div>
+          </div>
+
+          <!-- BEE / seuils -->
+          <div class="p-3 bg-slate-50 rounded-xl space-y-2 text-xs text-gray-500">
+            <div class="flex justify-between"><span>Poids idéal calculé</span><span class="font-medium text-gray-700" id="res-poids-ideal">—</span></div>
+            <div class="flex justify-between"><span>BEE (130 × Pi^0,75)</span><span class="font-medium text-gray-700" id="res-bee">—</span></div>
+            <div class="flex justify-between"><span>Seuil NRC 2006a — 2800 mg/Mcal BEE</span><span class="font-medium text-gray-700" id="res-seuil1">—</span></div>
+            <div class="flex justify-between"><span>Seuil NRC 2006a — 360 mg/kg^0,75/j</span><span class="font-medium text-gray-700" id="res-seuil2">—</span></div>
+          </div>
+
+          <div class="text-xs text-gray-400 italic text-center pt-1 border-t border-gray-100">
+            Cible : 2 g EPA+DHA / Mcal EM — NRC 2006a
+          </div>
+        </div>
+      </section>
+    </div>
+
+  </div>
+</main>
+
+<!-- ===== MODAL CROQUETTES ===== -->
+<div id="modal-croquettes" class="modal fixed inset-0 bg-black/40 z-50 items-start justify-center p-4 overflow-y-auto">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl my-6">
+    <div class="flex items-center justify-between p-5 border-b border-gray-100">
+      <h3 class="font-semibold">Base de données — Aliments</h3>
+      <button onclick="closeModal('modal-croquettes')" class="text-gray-400 hover:text-gray-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="p-5 border-b border-gray-100">
+      <h4 class="text-sm font-medium text-gray-600 mb-3" id="croque-form-title">Ajouter un aliment</h4>
+      <input type="hidden" id="croque-edit-id">
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Marque</label>
+          <input type="text" id="croque-marque" placeholder="Royal Canin" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Nom du produit *</label>
+          <input type="text" id="croque-nom" placeholder="Maxi Adult" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Protéines brutes (%) *</label>
+          <input type="number" id="croque-proteines" placeholder="28" min="0" max="100" step="0.1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100" oninput="renderENA()">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Matières grasses brutes (%) *</label>
+          <input type="number" id="croque-mg" placeholder="16" min="0" max="100" step="0.1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100" oninput="renderENA()">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Cellulose brute (%) *</label>
+          <input type="number" id="croque-cb" placeholder="2.5" min="0" max="100" step="0.1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100" oninput="renderENA()">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Cendres brutes (%) *</label>
+          <input type="number" id="croque-cendres" placeholder="7" min="0" max="100" step="0.1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100" oninput="renderENA()">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Humidité (%) <span class="text-gray-400">[défaut 10]</span></label>
+          <input type="number" id="croque-humidite" value="10" placeholder="10" min="0" max="100" step="0.1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100" oninput="renderENA()">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">EPA+DHA (%)</label>
+          <input type="number" id="croque-epa" placeholder="0.05" min="0" max="10" step="0.001" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">EM fabricant (kcal/100 g) <span class="text-gray-400">[optionnel]</span></label>
+          <input type="number" id="croque-em" placeholder="350" min="0" step="1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Prix (€/kg) <span class="text-gray-400">[optionnel]</span></label>
+          <input type="number" id="croque-prix" placeholder="4.50" min="0" step="0.01" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+        </div>
+        <div class="col-span-2 p-2.5 bg-emerald-50 rounded-lg text-xs text-emerald-700">
+          <span class="font-medium">ENA calculé :</span>
+          <span id="croque-ena-display" class="font-semibold mx-1">—</span>%
+          <span class="text-emerald-400 ml-1">(= 100 − P − MG − CB − humidité − cendres)</span>
+        </div>
+      </div>
+      <div class="flex gap-2 mt-3">
+        <button onclick="saveCroquette()" class="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition"><span id="croque-btn-text">Ajouter</span></button>
+        <button onclick="resetCroquetteForm()" class="px-4 py-2 bg-gray-100 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Annuler</button>
+      </div>
+    </div>
+    <div class="p-5 max-h-72 overflow-y-auto" id="croquettes-list">
+      <p class="text-sm text-gray-400 text-center py-4">Aucun aliment enregistré</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL HUILES ===== -->
+<div id="modal-huiles" class="modal fixed inset-0 bg-black/40 z-50 items-start justify-center p-4 overflow-y-auto">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg my-6">
+    <div class="flex items-center justify-between p-5 border-b border-gray-100">
+      <h3 class="font-semibold">Base de données — Huiles de saumon</h3>
+      <button onclick="closeModal('modal-huiles')" class="text-gray-400 hover:text-gray-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="p-5 border-b border-gray-100">
+      <h4 class="text-sm font-medium text-gray-600 mb-3" id="huile-form-title">Ajouter une huile</h4>
+      <input type="hidden" id="huile-edit-id">
+      <div class="grid grid-cols-2 gap-3">
+        <div class="col-span-2">
+          <label class="block text-xs text-gray-500 mb-1">Nom du produit *</label>
+          <input type="text" id="huile-nom" placeholder="Nordic Naturals Omega-3 Pet" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">EPA+DHA (%) *</label>
+          <input type="number" id="huile-concentration" placeholder="30" min="0" max="100" step="0.1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100" oninput="updateHuileMgMl()">
+        </div>
+        <div class="flex items-end">
+          <div class="p-2 bg-blue-50 rounded-lg text-xs text-blue-700 w-full">
+            ≈ <span id="huile-mgml-display" class="font-semibold">—</span> mg EPA+DHA/mL
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Volume flacon (mL) *</label>
+          <input type="number" id="huile-volume" placeholder="237" min="0" step="1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Prix flacon (€) *</label>
+          <input type="number" id="huile-prix" placeholder="25.00" min="0" step="0.01" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+        </div>
+      </div>
+      <div class="flex gap-2 mt-3">
+        <button onclick="saveHuile()" class="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition"><span id="huile-btn-text">Ajouter</span></button>
+        <button onclick="resetHuileForm()" class="px-4 py-2 bg-gray-100 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Annuler</button>
+      </div>
+    </div>
+    <div class="p-5 max-h-56 overflow-y-auto" id="huiles-list">
+      <p class="text-sm text-gray-400 text-center py-4">Aucune huile enregistrée</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL GELULES ===== -->
+<div id="modal-gelules" class="modal fixed inset-0 bg-black/40 z-50 items-start justify-center p-4 overflow-y-auto">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg my-6">
+    <div class="flex items-center justify-between p-5 border-b border-gray-100">
+      <h3 class="font-semibold">Base de données — Gélules oméga-3</h3>
+      <button onclick="closeModal('modal-gelules')" class="text-gray-400 hover:text-gray-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="p-5 border-b border-gray-100">
+      <h4 class="text-sm font-medium text-gray-600 mb-3" id="gelule-form-title">Ajouter des gélules</h4>
+      <input type="hidden" id="gelule-edit-id">
+      <div class="grid grid-cols-2 gap-3">
+        <div class="col-span-2">
+          <label class="block text-xs text-gray-500 mb-1">Nom du produit *</label>
+          <input type="text" id="gelule-nom" placeholder="Omega-3 1000 mg" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">EPA+DHA par gélule (mg) *</label>
+          <input type="number" id="gelule-epa" placeholder="600" min="0" step="1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Gélules par boîte *</label>
+          <input type="number" id="gelule-nb" placeholder="60" min="0" step="1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+        </div>
+        <div class="col-span-2">
+          <label class="block text-xs text-gray-500 mb-1">Prix de la boîte (€) *</label>
+          <input type="number" id="gelule-prix" placeholder="18.00" min="0" step="0.01" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+        </div>
+      </div>
+      <div class="flex gap-2 mt-3">
+        <button onclick="saveGelule()" class="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition"><span id="gelule-btn-text">Ajouter</span></button>
+        <button onclick="resetGeluleForm()" class="px-4 py-2 bg-gray-100 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Annuler</button>
+      </div>
+    </div>
+    <div class="p-5 max-h-56 overflow-y-auto" id="gelules-list">
+      <p class="text-sm text-gray-400 text-center py-4">Aucune gélule enregistrée</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== DATABASE =====
+const KEYS = { croquettes: 'vet_croquettes', huiles: 'vet_huiles', gelules: 'vet_gelules' };
+const loadDB = k => JSON.parse(localStorage.getItem(KEYS[k]) || '[]');
+const saveDB = (k, d) => localStorage.setItem(KEYS[k], JSON.stringify(d));
+const genId  = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
+
+// ===== FORMULAS =====
+function calcENA(p) {
+  return 100 - (p.proteines||0) - (p.mg||0) - (p.cb||0) - (p.humidite||0) - (p.cendres||0);
+}
+
+function calcEM(p) {
+  if (p.em_fabricant > 0) return p.em_fabricant;
+  const ena  = calcENA(p);
+  const eb   = 5.7 * p.proteines + 9.4 * p.mg + 4.1 * (ena + p.cb);
+  const cb_ms = p.cb / (100 - p.humidite) * 100;
+  const dige = 91.2 - 1.43 * cb_ms;
+  const ed   = eb * dige / 100;
+  return ed - 1.04 * p.proteines;
+}
+
+// ===== MAIN CALCULATION =====
+function calculate() {
+  const poids  = parseFloat(document.getElementById('poids').value);
+  const nec    = parseFloat(document.getElementById('nec').value);
+  const ration = parseFloat(document.getElementById('ration').value);
+  const cId    = document.getElementById('select-croquette').value;
+  const croque = loadDB('croquettes').find(c => c.id === cId);
+
+  if (!poids || !nec || !ration || !croque) {
+    document.getElementById('results-empty').classList.remove('hidden');
+    document.getElementById('results-content').classList.add('hidden');
+    return;
+  }
+
+  // Patient
+  const poids_ideal = poids * 100 / (100 + (nec - 5) * 10);
+  const bee  = 130 * Math.pow(poids_ideal, 0.75);
+  const em   = calcEM(croque);
+
+  // EPA+DHA from kibble: epa_dha% × 10 000 mg/kg × ration_g/1000 = epa_dha% × 10 × ration_g
+  const epa_croque = (croque.epa_dha || 0) * 10 * ration;
+
+  // Needs: energy_kcal × 2 mg/kcal  [2 g/Mcal = 2 mg/kcal since 1 Mcal = 1000 kcal]
+  const energy_jour = ration * em / 100;
+  const besoins = energy_jour * 2;
+  const deficit = Math.max(0, besoins - epa_croque);
+
+  // Safety thresholds (NRC 2006a)
+  const seuil1 = 2800 * bee / 1000;                  // 2800 mg/Mcal BEE/j
+  const seuil2 = 360 * Math.pow(poids_ideal, 0.75);  // 360 mg/kg^0.75/j
+
+  // Show panel
+  document.getElementById('results-empty').classList.add('hidden');
+  document.getElementById('results-content').classList.remove('hidden');
+
+  const proprio = document.getElementById('proprietaire').value;
+  const chien   = document.getElementById('nom_chien').value;
+  document.getElementById('patient-summary').innerHTML =
+    `<span class="font-semibold text-gray-700">${chien || 'Chien'}</span>${proprio ? ' — ' + proprio : ''} &nbsp;·&nbsp; ${poids} kg &nbsp;·&nbsp; NEC ${nec} &nbsp;·&nbsp; Ration ${ration} g/j`;
+
+  document.getElementById('res-besoins').textContent = Math.round(besoins);
+  document.getElementById('res-croque').textContent  = Math.round(epa_croque);
+  document.getElementById('res-deficit').textContent = Math.round(deficit);
+  document.getElementById('res-em').textContent      = Math.round(em) + (croque.em_fabricant > 0 ? ' ✱fab.' : ' (NRC)');
+  document.getElementById('res-poids-ideal').textContent = poids_ideal.toFixed(1) + ' kg';
+  document.getElementById('res-bee').textContent    = Math.round(bee) + ' kcal/j';
+  document.getElementById('res-seuil1').textContent = Math.round(seuil1) + ' mg/j';
+  document.getElementById('res-seuil2').textContent = Math.round(seuil2) + ' mg/j';
+
+  const warn = besoins > seuil1 || besoins > seuil2;
+  document.getElementById('warning-box').classList.toggle('hidden', !warn);
+  if (warn) {
+    const msgs = [];
+    if (besoins > seuil1) msgs.push(`Dépasse 2800 mg/Mcal BEE/j (limite : ${Math.round(seuil1)} mg/j)`);
+    if (besoins > seuil2) msgs.push(`Dépasse 360 mg/kg^0,75/j (limite : ${Math.round(seuil2)} mg/j)`);
+    document.getElementById('warning-text').innerHTML = msgs.join('<br>');
+  }
+
+  // Supplement dose
+  const type = document.querySelector('input[name="complement-type"]:checked').value;
+  let complement = null;
+  if (type === 'huile') complement = loadDB('huiles').find(h => h.id === document.getElementById('select-huile').value);
+  else complement = loadDB('gelules').find(g => g.id === document.getElementById('select-gelule').value);
+
+  const doseBox = document.getElementById('dose-box');
+  if (complement && deficit > 0) {
+    doseBox.classList.remove('hidden');
+    if (type === 'huile') {
+      const dose = deficit / (complement.concentration * 10);
+      const cout = dose * 30 / complement.volume * complement.prix;
+      document.getElementById('res-dose').textContent     = dose.toFixed(1);
+      document.getElementById('res-dose-unit').textContent = `mL/jour — ${complement.nom}`;
+      document.getElementById('res-cout').textContent     = `≈ ${cout.toFixed(2)} €/mois`;
+    } else {
+      const dose = deficit / complement.epa_dha_par_gelule;
+      const cout = Math.ceil(dose) * 30 / complement.nb_gelules * complement.prix;
+      document.getElementById('res-dose').textContent     = dose.toFixed(1);
+      document.getElementById('res-dose-unit').textContent = `gélule(s)/jour — ${complement.nom}`;
+      document.getElementById('res-cout').textContent     = `≈ ${cout.toFixed(2)} €/mois`;
     }
-  </script>
+  } else {
+    doseBox.classList.add('hidden');
+  }
+}
 
+// ===== MODALS =====
+function openModal(id)  { document.getElementById(id).classList.add('active'); document.body.style.overflow = 'hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); document.body.style.overflow = ''; }
+document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); }));
+
+// ===== SVG ICONS =====
+const iEdit = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>`;
+const iDel  = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>`;
+
+// ===== CROQUETTES =====
+function renderENA() {
+  const g = id => parseFloat(document.getElementById(id).value) || 0;
+  const ena = 100 - g('croque-proteines') - g('croque-mg') - g('croque-cb') - g('croque-humidite') - g('croque-cendres');
+  const el = document.getElementById('croque-ena-display');
+  el.textContent = ena.toFixed(2);
+  el.style.color = ena < 0 ? '#ef4444' : '';
+}
+
+function saveCroquette() {
+  const nom      = document.getElementById('croque-nom').value.trim();
+  const proteines = parseFloat(document.getElementById('croque-proteines').value);
+  const mg       = parseFloat(document.getElementById('croque-mg').value);
+  const cb       = parseFloat(document.getElementById('croque-cb').value);
+  const cendres  = parseFloat(document.getElementById('croque-cendres').value);
+  if (!nom || isNaN(proteines) || isNaN(mg) || isNaN(cb) || isNaN(cendres)) {
+    alert('Veuillez renseigner les champs obligatoires (*).'); return;
+  }
+  const entry = {
+    marque: document.getElementById('croque-marque').value.trim(),
+    nom, proteines, mg, cb, cendres,
+    humidite:     parseFloat(document.getElementById('croque-humidite').value) || 10,
+    epa_dha:      parseFloat(document.getElementById('croque-epa').value) || 0,
+    em_fabricant: parseFloat(document.getElementById('croque-em').value) || 0,
+    prix:         parseFloat(document.getElementById('croque-prix').value) || 0,
+  };
+  const db = loadDB('croquettes');
+  const eid = document.getElementById('croque-edit-id').value;
+  if (eid) { const i = db.findIndex(c => c.id === eid); if (i !== -1) db[i] = { ...db[i], ...entry }; }
+  else db.push({ id: genId(), ...entry });
+  saveDB('croquettes', db);
+  resetCroquetteForm(); renderCroquettesList(); updateCroquettesSelect(); calculate();
+}
+
+function resetCroquetteForm() {
+  ['croque-edit-id','croque-marque','croque-nom','croque-proteines','croque-mg','croque-cb','croque-cendres','croque-epa','croque-em','croque-prix'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('croque-humidite').value = '10';
+  document.getElementById('croque-form-title').textContent = 'Ajouter un aliment';
+  document.getElementById('croque-btn-text').textContent   = 'Ajouter';
+  document.getElementById('croque-ena-display').textContent = '—';
+}
+
+function editCroquette(id) {
+  const c = loadDB('croquettes').find(x => x.id === id); if (!c) return;
+  document.getElementById('croque-edit-id').value   = c.id;
+  document.getElementById('croque-marque').value    = c.marque || '';
+  document.getElementById('croque-nom').value       = c.nom;
+  document.getElementById('croque-proteines').value = c.proteines;
+  document.getElementById('croque-mg').value        = c.mg;
+  document.getElementById('croque-cb').value        = c.cb;
+  document.getElementById('croque-cendres').value   = c.cendres;
+  document.getElementById('croque-humidite').value  = c.humidite;
+  document.getElementById('croque-epa').value       = c.epa_dha;
+  document.getElementById('croque-em').value        = c.em_fabricant || '';
+  document.getElementById('croque-prix').value      = c.prix || '';
+  document.getElementById('croque-form-title').textContent = "Modifier l'aliment";
+  document.getElementById('croque-btn-text').textContent   = 'Enregistrer';
+  renderENA();
+}
+
+function deleteCroquette(id) {
+  if (!confirm('Supprimer cet aliment ?')) return;
+  saveDB('croquettes', loadDB('croquettes').filter(c => c.id !== id));
+  renderCroquettesList(); updateCroquettesSelect(); calculate();
+}
+
+function renderCroquettesList() {
+  const db = loadDB('croquettes');
+  const el = document.getElementById('croquettes-list');
+  if (!db.length) { el.innerHTML = '<p class="text-sm text-gray-400 text-center py-4">Aucun aliment enregistré</p>'; return; }
+  el.innerHTML = db.map(c => {
+    const em = calcEM(c), ena = calcENA(c);
+    return `<div class="flex items-start justify-between p-3 bg-gray-50 rounded-xl mb-2 gap-2">
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-medium truncate">${c.marque ? c.marque + ' — ' : ''}${c.nom}</div>
+        <div class="text-xs text-gray-400 mt-0.5">P:${c.proteines}% MG:${c.mg}% CB:${c.cb}% H:${c.humidite}% Cendres:${c.cendres}% ENA:${ena.toFixed(1)}% | EPA+DHA:${c.epa_dha}% | EM:${Math.round(em)} kcal/100g${c.em_fabricant ? ' ✱fab.' : ''}</div>
+      </div>
+      <div class="flex gap-1 flex-shrink-0">
+        <button onclick="editCroquette('${c.id}')" class="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg">${iEdit}</button>
+        <button onclick="deleteCroquette('${c.id}')" class="p-1.5 text-red-400 hover:bg-red-50 rounded-lg">${iDel}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateCroquettesSelect() {
+  const db = loadDB('croquettes'), sel = document.getElementById('select-croquette'), cur = sel.value;
+  sel.innerHTML = '<option value="">— Sélectionner un aliment —</option>' +
+    db.map(c => `<option value="${c.id}">${c.marque ? c.marque + ' — ' : ''}${c.nom}</option>`).join('');
+  if (db.find(c => c.id === cur)) sel.value = cur;
+}
+
+function onCroquetteChange() {
+  const c = loadDB('croquettes').find(x => x.id === document.getElementById('select-croquette').value);
+  const el = document.getElementById('croquette-info');
+  if (c) {
+    const em = calcEM(c), ena = calcENA(c);
+    const items = [['Prot.',c.proteines+'%'],['MG',c.mg+'%'],['CB',c.cb+'%'],['ENA',ena.toFixed(1)+'%'],
+                   ['Humidité',c.humidite+'%'],['Cendres',c.cendres+'%'],['EPA+DHA',c.epa_dha+'%'],['EM',Math.round(em)+' kcal/100g']];
+    el.innerHTML = `<div class="grid grid-cols-4 gap-2 text-center">${items.map(([l,v])=>`<div><div class="font-semibold text-gray-700">${v}</div><div class="text-gray-400">${l}</div></div>`).join('')}</div>`;
+    el.classList.remove('hidden');
+  } else el.classList.add('hidden');
+  calculate();
+}
+
+// ===== HUILES =====
+function updateHuileMgMl() {
+  const c = parseFloat(document.getElementById('huile-concentration').value) || 0;
+  document.getElementById('huile-mgml-display').textContent = c > 0 ? (c * 10).toFixed(1) : '—';
+}
+
+function saveHuile() {
+  const nom = document.getElementById('huile-nom').value.trim();
+  const concentration = parseFloat(document.getElementById('huile-concentration').value);
+  const volume = parseFloat(document.getElementById('huile-volume').value);
+  const prix   = parseFloat(document.getElementById('huile-prix').value);
+  if (!nom || isNaN(concentration) || isNaN(volume) || isNaN(prix)) { alert('Veuillez renseigner tous les champs.'); return; }
+  const db = loadDB('huiles'), eid = document.getElementById('huile-edit-id').value;
+  const entry = { nom, concentration, volume, prix };
+  if (eid) { const i = db.findIndex(h => h.id === eid); if (i !== -1) db[i] = { ...db[i], ...entry }; }
+  else db.push({ id: genId(), ...entry });
+  saveDB('huiles', db);
+  resetHuileForm(); renderHuilesList(); updateHuilesSelect(); calculate();
+}
+
+function resetHuileForm() {
+  ['huile-edit-id','huile-nom','huile-concentration','huile-volume','huile-prix'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('huile-form-title').textContent = 'Ajouter une huile';
+  document.getElementById('huile-btn-text').textContent   = 'Ajouter';
+  document.getElementById('huile-mgml-display').textContent = '—';
+}
+
+function editHuile(id) {
+  const h = loadDB('huiles').find(x => x.id === id); if (!h) return;
+  document.getElementById('huile-edit-id').value       = h.id;
+  document.getElementById('huile-nom').value           = h.nom;
+  document.getElementById('huile-concentration').value = h.concentration;
+  document.getElementById('huile-volume').value        = h.volume;
+  document.getElementById('huile-prix').value          = h.prix;
+  document.getElementById('huile-form-title').textContent = "Modifier l'huile";
+  document.getElementById('huile-btn-text').textContent   = 'Enregistrer';
+  updateHuileMgMl();
+}
+
+function deleteHuile(id) {
+  if (!confirm('Supprimer cette huile ?')) return;
+  saveDB('huiles', loadDB('huiles').filter(h => h.id !== id));
+  renderHuilesList(); updateHuilesSelect(); calculate();
+}
+
+function renderHuilesList() {
+  const db = loadDB('huiles'), el = document.getElementById('huiles-list');
+  if (!db.length) { el.innerHTML = '<p class="text-sm text-gray-400 text-center py-4">Aucune huile enregistrée</p>'; return; }
+  el.innerHTML = db.map(h => `<div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl mb-2 gap-2">
+    <div class="flex-1 min-w-0">
+      <div class="text-sm font-medium">${h.nom}</div>
+      <div class="text-xs text-gray-400">${h.concentration}% EPA+DHA (${(h.concentration*10).toFixed(1)} mg/mL) — ${h.volume} mL — ${h.prix} €/flacon</div>
+    </div>
+    <div class="flex gap-1 flex-shrink-0">
+      <button onclick="editHuile('${h.id}')" class="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg">${iEdit}</button>
+      <button onclick="deleteHuile('${h.id}')" class="p-1.5 text-red-400 hover:bg-red-50 rounded-lg">${iDel}</button>
+    </div>
+  </div>`).join('');
+}
+
+function updateHuilesSelect() {
+  const db = loadDB('huiles'), sel = document.getElementById('select-huile'), cur = sel.value;
+  sel.innerHTML = '<option value="">— Sélectionner une huile —</option>' +
+    db.map(h => `<option value="${h.id}">${h.nom}</option>`).join('');
+  if (db.find(h => h.id === cur)) sel.value = cur;
+  onHuileChange();
+}
+
+function onHuileChange() {
+  const h = loadDB('huiles').find(x => x.id === document.getElementById('select-huile').value);
+  const el = document.getElementById('huile-info');
+  if (h) {
+    el.innerHTML = `<div class="flex flex-wrap gap-4"><div><span class="font-medium text-gray-700">${h.concentration}%</span> EPA+DHA</div><div><span class="font-medium text-gray-700">${(h.concentration*10).toFixed(1)}</span> mg/mL</div><div><span class="font-medium text-gray-700">${h.volume}</span> mL/flacon</div><div><span class="font-medium text-gray-700">${h.prix}</span> €</div></div>`;
+    el.classList.remove('hidden');
+  } else el.classList.add('hidden');
+  calculate();
+}
+
+// ===== GELULES =====
+function saveGelule() {
+  const nom              = document.getElementById('gelule-nom').value.trim();
+  const epa_dha_par_gelule = parseFloat(document.getElementById('gelule-epa').value);
+  const nb_gelules       = parseFloat(document.getElementById('gelule-nb').value);
+  const prix             = parseFloat(document.getElementById('gelule-prix').value);
+  if (!nom || isNaN(epa_dha_par_gelule) || isNaN(nb_gelules) || isNaN(prix)) { alert('Veuillez renseigner tous les champs.'); return; }
+  const db = loadDB('gelules'), eid = document.getElementById('gelule-edit-id').value;
+  const entry = { nom, epa_dha_par_gelule, nb_gelules, prix };
+  if (eid) { const i = db.findIndex(g => g.id === eid); if (i !== -1) db[i] = { ...db[i], ...entry }; }
+  else db.push({ id: genId(), ...entry });
+  saveDB('gelules', db);
+  resetGeluleForm(); renderGelulesList(); updateGelulesSelect(); calculate();
+}
+
+function resetGeluleForm() {
+  ['gelule-edit-id','gelule-nom','gelule-epa','gelule-nb','gelule-prix'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('gelule-form-title').textContent = 'Ajouter des gélules';
+  document.getElementById('gelule-btn-text').textContent   = 'Ajouter';
+}
+
+function editGelule(id) {
+  const g = loadDB('gelules').find(x => x.id === id); if (!g) return;
+  document.getElementById('gelule-edit-id').value = g.id;
+  document.getElementById('gelule-nom').value     = g.nom;
+  document.getElementById('gelule-epa').value     = g.epa_dha_par_gelule;
+  document.getElementById('gelule-nb').value      = g.nb_gelules;
+  document.getElementById('gelule-prix').value    = g.prix;
+  document.getElementById('gelule-form-title').textContent = 'Modifier les gélules';
+  document.getElementById('gelule-btn-text').textContent   = 'Enregistrer';
+}
+
+function deleteGelule(id) {
+  if (!confirm('Supprimer ces gélules ?')) return;
+  saveDB('gelules', loadDB('gelules').filter(g => g.id !== id));
+  renderGelulesList(); updateGelulesSelect(); calculate();
+}
+
+function renderGelulesList() {
+  const db = loadDB('gelules'), el = document.getElementById('gelules-list');
+  if (!db.length) { el.innerHTML = '<p class="text-sm text-gray-400 text-center py-4">Aucune gélule enregistrée</p>'; return; }
+  el.innerHTML = db.map(g => `<div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl mb-2 gap-2">
+    <div class="flex-1 min-w-0">
+      <div class="text-sm font-medium">${g.nom}</div>
+      <div class="text-xs text-gray-400">${g.epa_dha_par_gelule} mg EPA+DHA/gélule — ${g.nb_gelules} gélules/boîte — ${g.prix} €/boîte</div>
+    </div>
+    <div class="flex gap-1 flex-shrink-0">
+      <button onclick="editGelule('${g.id}')" class="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg">${iEdit}</button>
+      <button onclick="deleteGelule('${g.id}')" class="p-1.5 text-red-400 hover:bg-red-50 rounded-lg">${iDel}</button>
+    </div>
+  </div>`).join('');
+}
+
+function updateGelulesSelect() {
+  const db = loadDB('gelules'), sel = document.getElementById('select-gelule'), cur = sel.value;
+  sel.innerHTML = '<option value="">— Sélectionner des gélules —</option>' +
+    db.map(g => `<option value="${g.id}">${g.nom}</option>`).join('');
+  if (db.find(g => g.id === cur)) sel.value = cur;
+  onGeluleChange();
+}
+
+function onGeluleChange() {
+  const g = loadDB('gelules').find(x => x.id === document.getElementById('select-gelule').value);
+  const el = document.getElementById('gelule-info');
+  if (g) {
+    el.innerHTML = `<div class="flex flex-wrap gap-4"><div><span class="font-medium text-gray-700">${g.epa_dha_par_gelule}</span> mg EPA+DHA/gélule</div><div><span class="font-medium text-gray-700">${g.nb_gelules}</span> gélules/boîte</div><div><span class="font-medium text-gray-700">${g.prix}</span> €/boîte</div></div>`;
+    el.classList.remove('hidden');
+  } else el.classList.add('hidden');
+  calculate();
+}
+
+// ===== COMPLEMENT TYPE =====
+function onComplementTypeChange() {
+  const t = document.querySelector('input[name="complement-type"]:checked').value;
+  document.getElementById('section-huile').classList.toggle('hidden', t !== 'huile');
+  document.getElementById('section-gelules').classList.toggle('hidden', t !== 'gelules');
+  calculate();
+}
+
+// ===== INIT =====
+(function() {
+  updateCroquettesSelect(); updateHuilesSelect(); updateGelulesSelect();
+  renderCroquettesList(); renderHuilesList(); renderGelulesList();
+})();
+</script>
 </body>
 </html>
