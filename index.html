@@ -50,21 +50,21 @@
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-medium text-gray-500 mb-1">Nom du propriétaire</label>
-            <input type="text" id="proprietaire" placeholder="Dupont" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition" oninput="calculate()">
+            <input type="text" id="proprietaire" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition" oninput="calculate()">
           </div>
           <div>
             <label class="block text-xs font-medium text-gray-500 mb-1">Nom du chien</label>
-            <input type="text" id="nom_chien" placeholder="Rex" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition" oninput="calculate()">
+            <input type="text" id="nom_chien" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition" oninput="calculate()">
           </div>
           <div>
-            <label class="block text-xs font-medium text-gray-500 mb-1">Poids actuel (kg)</label>
-            <input type="number" id="poids" placeholder="15" min="0.5" max="100" step="0.1" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition" oninput="calculate()">
+            <label class="block text-xs font-medium text-gray-500 mb-1">Poids actuel (kg) *</label>
+            <input type="number" id="poids" min="0.5" max="100" step="0.1" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition" oninput="calculate()">
           </div>
           <div>
-            <label class="block text-xs font-medium text-gray-500 mb-1">NEC (1–9)</label>
+            <label class="block text-xs font-medium text-gray-500 mb-1">NEC (1–9) *</label>
             <select id="nec" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition bg-white" onchange="calculate()">
               <option value="">— Sélectionner —</option>
-              <option value="1">1 — Émacié</option>
+              <option value="1">1 — Cachectique</option>
               <option value="2">2 — Très maigre</option>
               <option value="3">3 — Maigre</option>
               <option value="4">4 — Sous-optimal</option>
@@ -76,8 +76,8 @@
             </select>
           </div>
           <div class="col-span-2">
-            <label class="block text-xs font-medium text-gray-500 mb-1">Ration journalière (g/jour)</label>
-            <input type="number" id="ration" placeholder="300" min="0" step="1" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition" oninput="calculate()">
+            <label class="block text-xs font-medium text-gray-500 mb-1">Ration journalière (g/jour) *</label>
+            <input type="number" id="ration" min="0" step="1" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition" oninput="calculate()">
           </div>
         </div>
       </section>
@@ -96,10 +96,14 @@
         </div>
         <label class="block text-xs font-medium text-gray-500 mb-1">Aliment sélectionné</label>
         <div class="dd-wrap relative" id="dd-croquette">
-          <button type="button" onclick="ddToggle('dd-croquette')" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-left flex items-center justify-between bg-white hover:border-emerald-300 transition">
-            <span id="dd-croquette-label" class="text-gray-400 truncate">— Sélectionner un aliment —</span>
-            <svg class="w-4 h-4 text-gray-300 flex-shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-          </button>
+          <div class="flex items-center border border-gray-200 rounded-lg bg-white hover:border-emerald-300 transition focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-100">
+            <input type="text" id="dd-croquette-input" autocomplete="off" placeholder="— Sélectionner un aliment —"
+              class="flex-1 px-3 py-2 text-sm bg-transparent outline-none"
+              onfocus="ddOpen('dd-croquette')"
+              oninput="ddFilter('dd-croquette', this.value)"
+              onblur="ddBlur('croquette')">
+            <svg class="w-4 h-4 text-gray-300 flex-shrink-0 mr-2 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24" onclick="ddToggle('dd-croquette')"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </div>
           <input type="hidden" id="select-croquette">
           <ul id="dd-croquette-panel" class="dd-panel hidden absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-52 overflow-y-auto z-50"></ul>
         </div>
@@ -133,10 +137,14 @@
             </button>
           </div>
           <div class="dd-wrap relative" id="dd-huile">
-            <button type="button" onclick="ddToggle('dd-huile')" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-left flex items-center justify-between bg-white hover:border-emerald-300 transition">
-              <span id="dd-huile-label" class="text-gray-400 truncate">— Sélectionner une huile —</span>
-              <svg class="w-4 h-4 text-gray-300 flex-shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-            </button>
+            <div class="flex items-center border border-gray-200 rounded-lg bg-white hover:border-emerald-300 transition focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-100">
+              <input type="text" id="dd-huile-input" autocomplete="off" placeholder="— Sélectionner une huile —"
+                class="flex-1 px-3 py-2 text-sm bg-transparent outline-none"
+                onfocus="ddOpen('dd-huile')"
+                oninput="ddFilter('dd-huile', this.value)"
+                onblur="ddBlur('huile')">
+              <svg class="w-4 h-4 text-gray-300 flex-shrink-0 mr-2 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24" onclick="ddToggle('dd-huile')"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
             <input type="hidden" id="select-huile">
             <ul id="dd-huile-panel" class="dd-panel hidden absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-52 overflow-y-auto z-50"></ul>
           </div>
@@ -153,10 +161,14 @@
             </button>
           </div>
           <div class="dd-wrap relative" id="dd-gelule">
-            <button type="button" onclick="ddToggle('dd-gelule')" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-left flex items-center justify-between bg-white hover:border-emerald-300 transition">
-              <span id="dd-gelule-label" class="text-gray-400 truncate">— Sélectionner des gélules —</span>
-              <svg class="w-4 h-4 text-gray-300 flex-shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-            </button>
+            <div class="flex items-center border border-gray-200 rounded-lg bg-white hover:border-emerald-300 transition focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-100">
+              <input type="text" id="dd-gelule-input" autocomplete="off" placeholder="— Sélectionner des gélules —"
+                class="flex-1 px-3 py-2 text-sm bg-transparent outline-none"
+                onfocus="ddOpen('dd-gelule')"
+                oninput="ddFilter('dd-gelule', this.value)"
+                onblur="ddBlur('gelule')">
+              <svg class="w-4 h-4 text-gray-300 flex-shrink-0 mr-2 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24" onclick="ddToggle('dd-gelule')"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
             <input type="hidden" id="select-gelule">
             <ul id="dd-gelule-panel" class="dd-panel hidden absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-52 overflow-y-auto z-50"></ul>
           </div>
@@ -261,39 +273,39 @@
         </div>
         <div>
           <label class="block text-xs text-gray-500 mb-1">Nom du produit *</label>
-          <input type="text" id="croque-nom" placeholder="Maxi Adult" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+          <input type="text" id="croque-nom" placeholder="Medium Adult" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
         </div>
         <div>
           <label class="block text-xs text-gray-500 mb-1">Protéines brutes (%) *</label>
-          <input type="number" id="croque-proteines" placeholder="28" min="0" max="100" step="0.1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100" oninput="renderENA()">
+          <input type="number" id="croque-proteines" min="0" max="100" step="0.1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100" oninput="renderENA()">
         </div>
         <div>
           <label class="block text-xs text-gray-500 mb-1">Matières grasses brutes (%) *</label>
-          <input type="number" id="croque-mg" placeholder="16" min="0" max="100" step="0.1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100" oninput="renderENA()">
+          <input type="number" id="croque-mg" min="0" max="100" step="0.1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100" oninput="renderENA()">
         </div>
         <div>
           <label class="block text-xs text-gray-500 mb-1">Cellulose brute (%) *</label>
-          <input type="number" id="croque-cb" placeholder="2.5" min="0" max="100" step="0.1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100" oninput="renderENA()">
+          <input type="number" id="croque-cb" min="0" max="100" step="0.1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100" oninput="renderENA()">
         </div>
         <div>
           <label class="block text-xs text-gray-500 mb-1">Cendres brutes (%) *</label>
-          <input type="number" id="croque-cendres" placeholder="7" min="0" max="100" step="0.1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100" oninput="renderENA()">
+          <input type="number" id="croque-cendres" min="0" max="100" step="0.1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100" oninput="renderENA()">
         </div>
         <div>
           <label class="block text-xs text-gray-500 mb-1">Humidité (%) <span class="text-gray-400">[défaut 10]</span></label>
           <input type="number" id="croque-humidite" value="10" placeholder="10" min="0" max="100" step="0.1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100" oninput="renderENA()">
         </div>
         <div>
-          <label class="block text-xs text-gray-500 mb-1">EPA+DHA (%)</label>
-          <input type="number" id="croque-epa" placeholder="0.05" min="0" max="10" step="0.001" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+          <label class="block text-xs text-gray-500 mb-1">EPA+DHA (%) *</label>
+          <input type="number" id="croque-epa" min="0" max="10" step="0.001" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
         </div>
         <div>
           <label class="block text-xs text-gray-500 mb-1">EM fabricant (kcal/100 g) <span class="text-gray-400">[optionnel]</span></label>
-          <input type="number" id="croque-em" placeholder="350" min="0" step="1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+          <input type="number" id="croque-em" min="0" step="1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
         </div>
         <div>
           <label class="block text-xs text-gray-500 mb-1">Prix (€/kg) <span class="text-gray-400">[optionnel]</span></label>
-          <input type="number" id="croque-prix" placeholder="4.50" min="0" step="0.01" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+          <input type="number" id="croque-prix" min="0" step="0.01" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
         </div>
         <div>
           <label class="block text-xs text-gray-500 mb-1">Année mise à jour</label>
@@ -331,11 +343,11 @@
       <div class="grid grid-cols-2 gap-3">
         <div class="col-span-2">
           <label class="block text-xs text-gray-500 mb-1">Nom du produit *</label>
-          <input type="text" id="huile-nom" placeholder="Nordic Naturals Omega-3 Pet" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+          <input type="text" id="huile-nom" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
         </div>
         <div>
           <label class="block text-xs text-gray-500 mb-1">EPA+DHA (%) *</label>
-          <input type="number" id="huile-concentration" placeholder="30" min="0" max="100" step="0.1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100" oninput="updateHuileMgMl()">
+          <input type="number" id="huile-concentration" min="0" max="100" step="0.1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100" oninput="updateHuileMgMl()">
         </div>
         <div class="flex items-end">
           <div class="p-2 bg-blue-50 rounded-lg text-xs text-blue-700 w-full">
@@ -344,15 +356,15 @@
         </div>
         <div>
           <label class="block text-xs text-gray-500 mb-1">Volume flacon (mL) *</label>
-          <input type="number" id="huile-volume" placeholder="237" min="0" step="1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+          <input type="number" id="huile-volume" min="0" step="1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
         </div>
         <div>
           <label class="block text-xs text-gray-500 mb-1">Prix flacon (€) *</label>
-          <input type="number" id="huile-prix" placeholder="25.00" min="0" step="0.01" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+          <input type="number" id="huile-prix" min="0" step="0.01" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
         </div>
         <div>
           <label class="block text-xs text-gray-500 mb-1">Année mise à jour</label>
-          <input type="number" id="huile-annee" placeholder="2025" min="2000" max="2099" step="1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+          <input type="number" id="huile-annee" min="2000" max="2099" step="1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
         </div>
       </div>
       <div class="flex gap-2 mt-3">
@@ -381,23 +393,23 @@
       <div class="grid grid-cols-2 gap-3">
         <div class="col-span-2">
           <label class="block text-xs text-gray-500 mb-1">Nom du produit *</label>
-          <input type="text" id="gelule-nom" placeholder="Omega-3 1000 mg" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+          <input type="text" id="gelule-nom" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
         </div>
         <div>
           <label class="block text-xs text-gray-500 mb-1">EPA+DHA par gélule (mg) *</label>
-          <input type="number" id="gelule-epa" placeholder="600" min="0" step="1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+          <input type="number" id="gelule-epa" min="0" step="1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
         </div>
         <div>
           <label class="block text-xs text-gray-500 mb-1">Gélules par boîte *</label>
-          <input type="number" id="gelule-nb" placeholder="60" min="0" step="1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+          <input type="number" id="gelule-nb" min="0" step="1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
         </div>
         <div>
-          <label class="block text-xs text-gray-500 mb-1">Prix de la boîte (€) *</label>
-          <input type="number" id="gelule-prix" placeholder="18.00" min="0" step="0.01" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+          <label class="block text-xs text-gray-500 mb-1">Prix de la boîte (€)</label>
+          <input type="number" id="gelule-prix" min="0" step="0.01" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
         </div>
         <div>
           <label class="block text-xs text-gray-500 mb-1">Année mise à jour</label>
-          <input type="number" id="gelule-annee" placeholder="2025" min="2000" max="2099" step="1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+          <input type="number" id="gelule-annee" min="2000" max="2099" step="1" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
         </div>
       </div>
       <div class="flex gap-2 mt-3">
@@ -500,8 +512,37 @@ function ddToggle(id) {
   const panel = document.getElementById(id + '-panel');
   const open  = !panel.classList.contains('hidden');
   document.querySelectorAll('.dd-panel').forEach(p => p.classList.add('hidden'));
-  if (!open) panel.classList.remove('hidden');
+  if (!open) {
+    panel.classList.remove('hidden');
+    const input = document.getElementById(id + '-input');
+    if (input) input.focus();
+  }
 }
+
+function ddOpen(id) {
+  document.querySelectorAll('.dd-panel').forEach(p => {
+    if (p.id !== id + '-panel') p.classList.add('hidden');
+  });
+  document.getElementById(id + '-panel').classList.remove('hidden');
+}
+
+function ddFilter(id, query) {
+  ddOpen(id);
+  const q = query.toLowerCase().trim();
+  Array.from(document.getElementById(id + '-panel').querySelectorAll('li')).forEach((li, i) => {
+    if (i === 0) { li.style.display = q ? 'none' : ''; return; }
+    li.style.display = (!q || (li.dataset.search || '').includes(q)) ? '' : 'none';
+  });
+}
+
+function ddBlur(name) {
+  setTimeout(() => {
+    ddRenderLabel(name, document.getElementById('select-' + name).value);
+    Array.from(document.getElementById('dd-' + name + '-panel').querySelectorAll('li'))
+      .forEach(li => li.style.display = '');
+  }, 200);
+}
+
 document.addEventListener('click', e => {
   if (!e.target.closest('.dd-wrap'))
     document.querySelectorAll('.dd-panel').forEach(p => p.classList.add('hidden'));
@@ -510,24 +551,20 @@ document.addEventListener('click', e => {
 function ddPick(name, value, callback) {
   document.getElementById('select-' + name).value = value;
   ddRenderLabel(name, value);
-  document.getElementById('dd-' + name + '-panel').classList.add('hidden');
+  const panel = document.getElementById('dd-' + name + '-panel');
+  panel.classList.add('hidden');
+  Array.from(panel.querySelectorAll('li')).forEach(li => li.style.display = '');
   callback();
 }
 
 function ddRenderLabel(name, value) {
-  const label = document.getElementById('dd-' + name + '-label');
-  const placeholders = { croquette: '— Sélectionner un aliment —', huile: '— Sélectionner une huile —', gelule: '— Sélectionner des gélules —' };
-  if (!value) {
-    label.innerHTML = placeholders[name];
-    label.className = 'text-gray-400 truncate';
-    return;
-  }
+  const input = document.getElementById('dd-' + name + '-input');
+  if (!value) { input.value = ''; return; }
   const dbKey = name === 'croquette' ? 'croquettes' : name === 'huile' ? 'huiles' : 'gelules';
   const item  = loadDB(dbKey).find(x => x.id === value);
   if (!item) return;
   const mainName = name === 'croquette' ? (item.marque ? item.marque + ' — ' : '') + item.nom : item.nom;
-  label.innerHTML = `${mainName}${item.annee ? ` <span class="text-xs text-gray-400 font-normal">— Màj ${item.annee}</span>` : ''}`;
-  label.className = 'text-gray-800 truncate';
+  input.value = mainName + (item.annee ? ` — Màj ${item.annee}` : '');
 }
 
 // ===== UI HELPERS =====
@@ -729,7 +766,7 @@ function renderCroquettesList() {
     return `<div class="flex items-start justify-between p-3 bg-gray-50 rounded-xl mb-2 gap-2">
       <div class="flex-1 min-w-0">
         <div class="text-sm font-medium truncate">${c.marque ? c.marque + ' — ' : ''}${c.nom}${c.annee ? ' <span class="text-gray-400 font-normal text-xs">— Màj ' + c.annee + '</span>' : ''}</div>
-        <div class="text-xs text-gray-400 mt-0.5">P:${c.proteines}% MG:${c.mg}% CB:${c.cb}% H:${c.humidite}% Cendres:${c.cendres}% ENA:${ena.toFixed(1)}% | EPA+DHA:${c.epa_dha}% | EM:${Math.round(em)} kcal/100g${c.em_fabricant ? ' ✱fab.' : ''}</div>
+        <div class="text-xs text-gray-400 mt-0.5">P : ${c.proteines}% MG : ${c.mg}% CB : ${c.cb}% H : ${c.humidite}% Cendres : ${c.cendres}% ENA : ${ena.toFixed(1)}% | EPA+DHA : ${c.epa_dha}% | EM : ${+em.toFixed(1)} kcal/100g${c.em_fabricant ? ' ✱fab.' : ''}</div>
       </div>
       <div class="flex gap-1 flex-shrink-0">
         <button onclick="editCroquette('${c.id}')" class="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg">${iEdit}</button>
@@ -746,8 +783,9 @@ function updateCroquettesSelect() {
   panel.innerHTML =
     `<li class="px-3 py-2 text-sm text-gray-400 cursor-default hover:bg-gray-50" onclick="ddPick('croquette','',onCroquetteChange)">— Sélectionner un aliment —</li>` +
     db.map(c => {
-      const name = (c.marque ? c.marque + ' — ' : '') + c.nom;
-      return `<li class="px-3 py-2 text-sm cursor-pointer hover:bg-emerald-50 flex items-baseline gap-1" onclick="ddPick('croquette','${c.id}',onCroquetteChange)">
+      const name   = (c.marque ? c.marque + ' — ' : '') + c.nom;
+      const search = ((c.marque || '') + ' ' + c.nom).toLowerCase();
+      return `<li data-search="${search}" class="px-3 py-2 text-sm cursor-pointer hover:bg-emerald-50 flex items-baseline gap-1" onclick="ddPick('croquette','${c.id}',onCroquetteChange)">
         <span class="text-gray-800">${name}</span>
         ${c.annee ? `<span class="text-xs text-gray-400 font-normal">— Màj ${c.annee}</span>` : ''}
       </li>`;
@@ -763,7 +801,7 @@ function onCroquetteChange() {
   if (c) {
     const em = calcEM(c), ena = calcENA(c);
     const items = [['Prot.',c.proteines+'%'],['MG',c.mg+'%'],['CB',c.cb+'%'],['ENA',ena.toFixed(1)+'%'],
-                   ['Humidité',c.humidite+'%'],['Cendres',c.cendres+'%'],['EPA+DHA',c.epa_dha+'%'],['EM',Math.round(em)+' kcal/100g']];
+                   ['Humidité',c.humidite+'%'],['Cendres',c.cendres+'%'],['EPA+DHA',c.epa_dha+'%'],['EM',+em.toFixed(1)+' kcal/100g']];
     el.innerHTML = `<div class="grid grid-cols-4 gap-2 text-center">${items.map(([l,v])=>`<div><div class="font-semibold text-gray-700">${v}</div><div class="text-gray-400">${l}</div></div>`).join('')}</div>`;
     el.classList.remove('hidden');
   } else el.classList.add('hidden');
@@ -839,7 +877,7 @@ function updateHuilesSelect() {
   const panel = document.getElementById('dd-huile-panel');
   panel.innerHTML =
     `<li class="px-3 py-2 text-sm text-gray-400 cursor-default hover:bg-gray-50" onclick="ddPick('huile','',onHuileChange)">— Sélectionner une huile —</li>` +
-    db.map(h => `<li class="px-3 py-2 text-sm cursor-pointer hover:bg-emerald-50 flex items-baseline gap-1" onclick="ddPick('huile','${h.id}',onHuileChange)">
+    db.map(h => `<li data-search="${h.nom.toLowerCase()}" class="px-3 py-2 text-sm cursor-pointer hover:bg-emerald-50 flex items-baseline gap-1" onclick="ddPick('huile','${h.id}',onHuileChange)">
         <span class="text-gray-800">${h.nom}</span>
         ${h.annee ? `<span class="text-xs text-gray-400 font-normal">— Màj ${h.annee}</span>` : ''}
       </li>`).join('');
@@ -921,7 +959,7 @@ function updateGelulesSelect() {
   const panel = document.getElementById('dd-gelule-panel');
   panel.innerHTML =
     `<li class="px-3 py-2 text-sm text-gray-400 cursor-default hover:bg-gray-50" onclick="ddPick('gelule','',onGeluleChange)">— Sélectionner des gélules —</li>` +
-    db.map(g => `<li class="px-3 py-2 text-sm cursor-pointer hover:bg-emerald-50 flex items-baseline gap-1" onclick="ddPick('gelule','${g.id}',onGeluleChange)">
+    db.map(g => `<li data-search="${g.nom.toLowerCase()}" class="px-3 py-2 text-sm cursor-pointer hover:bg-emerald-50 flex items-baseline gap-1" onclick="ddPick('gelule','${g.id}',onGeluleChange)">
         <span class="text-gray-800">${g.nom}</span>
         ${g.annee ? `<span class="text-xs text-gray-400 font-normal">— Màj ${g.annee}</span>` : ''}
       </li>`).join('');
