@@ -118,7 +118,11 @@
         </div>
         <div class="flex gap-3 mb-4">
           <label class="flex-1 flex items-center gap-2.5 p-3 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-emerald-200 transition has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50">
-            <input type="radio" name="complement-type" value="huile" checked onchange="onComplementTypeChange()" class="accent-emerald-600">
+            <input type="radio" name="complement-type" value="aucune" checked onchange="onComplementTypeChange()" class="accent-emerald-600">
+            <div><div class="text-sm font-medium">Aucune complémentation</div><div class="text-xs text-gray-400">Sans apport</div></div>
+          </label>
+          <label class="flex-1 flex items-center gap-2.5 p-3 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-emerald-200 transition has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50">
+            <input type="radio" name="complement-type" value="huile" onchange="onComplementTypeChange()" class="accent-emerald-600">
             <div><div class="text-sm font-medium">Huile de saumon</div><div class="text-xs text-gray-400">Liquide</div></div>
           </label>
           <label class="flex-1 flex items-center gap-2.5 p-3 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-emerald-200 transition has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50">
@@ -128,7 +132,7 @@
         </div>
 
         <!-- Huile -->
-        <div id="section-huile">
+        <div id="section-huile" class="hidden">
           <div class="flex items-center justify-between mb-1">
             <label class="text-xs font-medium text-gray-500">Produit sélectionné</label>
             <button onclick="openModal('modal-huiles')" class="text-xs text-emerald-600 hover:text-emerald-800 font-medium flex items-center gap-1 transition">
@@ -189,7 +193,7 @@
           <svg class="w-12 h-12 mx-auto mb-3 opacity-25" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/>
           </svg>
-          <p class="text-sm">Renseignez le patient,<br>sélectionnez un aliment et une source d'oméga-3</p>
+          <p class="text-sm">Renseignez le patient<br>et sélectionnez un aliment</p>
         </div>
 
         <div id="results-content" class="hidden space-y-4">
@@ -656,7 +660,7 @@ function calculate() {
   const type = document.querySelector('input[name="complement-type"]:checked').value;
   let complement = null;
   if (type === 'huile') complement = loadDB('huiles').find(h => h.id === document.getElementById('select-huile').value);
-  else complement = loadDB('gelules').find(g => g.id === document.getElementById('select-gelule').value);
+  else if (type === 'gelules') complement = loadDB('gelules').find(g => g.id === document.getElementById('select-gelule').value);
 
   const doseBox = document.getElementById('dose-box');
   if (complement && deficit > 0) {
@@ -986,6 +990,7 @@ function onComplementTypeChange() {
   document.getElementById('section-gelules').classList.toggle('hidden', t !== 'gelules');
   calculate();
 }
+
 
 // ===== INIT =====
 (function() {
