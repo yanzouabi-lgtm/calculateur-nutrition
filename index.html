@@ -76,8 +76,41 @@
             </select>
           </div>
           <div class="col-span-2">
-            <label class="block text-xs font-medium text-gray-500 mb-1">Ration journalière (g/jour) *</label>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-xs font-medium text-gray-500">Ration journalière (g/jour)</label>
+              <label class="flex items-center gap-1.5 cursor-pointer text-xs text-emerald-600 font-medium select-none">
+                <input type="checkbox" id="ration-auto" class="accent-emerald-600" onchange="onRationAutoChange()">
+                Calculer automatiquement
+              </label>
+            </div>
             <input type="number" id="ration" min="0" step="1" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition" oninput="calculate()">
+            <div id="ration-auto-summary" class="hidden mt-2 p-3 bg-emerald-50 rounded-xl text-xs text-emerald-700 flex items-center justify-between gap-2">
+              <div id="ration-auto-text" class="flex-1">—</div>
+              <button onclick="openModal('modal-kparams')" class="flex-shrink-0 text-emerald-600 hover:text-emerald-800 font-medium underline underline-offset-2 transition">Modifier</button>
+            </div>
+          </div>
+          <div class="col-span-2">
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-xs font-medium text-gray-500">Indication *</label>
+              <button onclick="openModal('modal-indications')" class="text-xs text-emerald-600 hover:text-emerald-800 font-medium flex items-center gap-1 transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                Gérer la base de données
+              </button>
+            </div>
+            <div class="dd-wrap relative" id="dd-indication">
+              <div class="flex items-center border border-gray-200 rounded-lg bg-white hover:border-emerald-300 transition focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-100 cursor-pointer" onclick="ddOpenCustom('indication')">
+                <div id="dd-indication-display" class="flex-1 px-3 py-2 text-sm select-none">
+                  <span class="text-gray-400">— Sélectionner une indication —</span>
+                </div>
+                <input type="text" id="dd-indication-input" autocomplete="off" placeholder="Rechercher…"
+                  class="flex-1 px-3 py-2 text-sm bg-transparent outline-none hidden"
+                  oninput="ddFilter('dd-indication', this.value)"
+                  onblur="ddBlurIndication()">
+                <svg class="w-4 h-4 text-gray-300 flex-shrink-0 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </div>
+              <input type="hidden" id="select-indication">
+              <ul id="dd-indication-panel" class="dd-panel hidden absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-52 overflow-y-auto z-50"></ul>
+            </div>
           </div>
         </div>
       </section>
@@ -96,13 +129,13 @@
         </div>
         <label class="block text-xs font-medium text-gray-500 mb-1">Aliment sélectionné</label>
         <div class="dd-wrap relative" id="dd-croquette">
-          <div class="flex items-center border border-gray-200 rounded-lg bg-white hover:border-emerald-300 transition focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-100">
-            <input type="text" id="dd-croquette-input" autocomplete="off" placeholder="— Sélectionner un aliment —"
-              class="flex-1 px-3 py-2 text-sm bg-transparent outline-none"
-              onfocus="ddOpen('dd-croquette')"
+          <div class="flex items-center border border-gray-200 rounded-lg bg-white hover:border-emerald-300 transition focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-100 cursor-pointer" onclick="ddOpenCustom('croquette')">
+            <div id="dd-croquette-display" class="flex-1 px-3 py-2 text-sm select-none"><span class="text-gray-400">— Sélectionner un aliment —</span></div>
+            <input type="text" id="dd-croquette-input" autocomplete="off" placeholder="Rechercher…"
+              class="flex-1 px-3 py-2 text-sm bg-transparent outline-none hidden"
               oninput="ddFilter('dd-croquette', this.value)"
               onblur="ddBlur('croquette')">
-            <svg class="w-4 h-4 text-gray-300 flex-shrink-0 mr-2 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24" onclick="ddToggle('dd-croquette')"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            <svg class="w-4 h-4 text-gray-300 flex-shrink-0 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </div>
           <input type="hidden" id="select-croquette">
           <ul id="dd-croquette-panel" class="dd-panel hidden absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-52 overflow-y-auto z-50"></ul>
@@ -141,13 +174,13 @@
             </button>
           </div>
           <div class="dd-wrap relative" id="dd-huile">
-            <div class="flex items-center border border-gray-200 rounded-lg bg-white hover:border-emerald-300 transition focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-100">
-              <input type="text" id="dd-huile-input" autocomplete="off" placeholder="— Sélectionner une huile —"
-                class="flex-1 px-3 py-2 text-sm bg-transparent outline-none"
-                onfocus="ddOpen('dd-huile')"
+            <div class="flex items-center border border-gray-200 rounded-lg bg-white hover:border-emerald-300 transition focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-100 cursor-pointer" onclick="ddOpenCustom('huile')">
+              <div id="dd-huile-display" class="flex-1 px-3 py-2 text-sm select-none"><span class="text-gray-400">— Sélectionner une huile —</span></div>
+              <input type="text" id="dd-huile-input" autocomplete="off" placeholder="Rechercher…"
+                class="flex-1 px-3 py-2 text-sm bg-transparent outline-none hidden"
                 oninput="ddFilter('dd-huile', this.value)"
                 onblur="ddBlur('huile')">
-              <svg class="w-4 h-4 text-gray-300 flex-shrink-0 mr-2 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24" onclick="ddToggle('dd-huile')"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              <svg class="w-4 h-4 text-gray-300 flex-shrink-0 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </div>
             <input type="hidden" id="select-huile">
             <ul id="dd-huile-panel" class="dd-panel hidden absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-52 overflow-y-auto z-50"></ul>
@@ -165,13 +198,13 @@
             </button>
           </div>
           <div class="dd-wrap relative" id="dd-gelule">
-            <div class="flex items-center border border-gray-200 rounded-lg bg-white hover:border-emerald-300 transition focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-100">
-              <input type="text" id="dd-gelule-input" autocomplete="off" placeholder="— Sélectionner des gélules —"
-                class="flex-1 px-3 py-2 text-sm bg-transparent outline-none"
-                onfocus="ddOpen('dd-gelule')"
+            <div class="flex items-center border border-gray-200 rounded-lg bg-white hover:border-emerald-300 transition focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-100 cursor-pointer" onclick="ddOpenCustom('gelule')">
+              <div id="dd-gelule-display" class="flex-1 px-3 py-2 text-sm select-none"><span class="text-gray-400">— Sélectionner des gélules —</span></div>
+              <input type="text" id="dd-gelule-input" autocomplete="off" placeholder="Rechercher…"
+                class="flex-1 px-3 py-2 text-sm bg-transparent outline-none hidden"
                 oninput="ddFilter('dd-gelule', this.value)"
                 onblur="ddBlur('gelule')">
-              <svg class="w-4 h-4 text-gray-300 flex-shrink-0 mr-2 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24" onclick="ddToggle('dd-gelule')"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              <svg class="w-4 h-4 text-gray-300 flex-shrink-0 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </div>
             <input type="hidden" id="select-gelule">
             <ul id="dd-gelule-panel" class="dd-panel hidden absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-52 overflow-y-auto z-50"></ul>
@@ -213,7 +246,7 @@
           <!-- Metrics grid -->
           <div class="grid grid-cols-2 gap-3">
             <div class="p-3 bg-emerald-50 rounded-xl col-span-2">
-              <div class="text-xs text-emerald-600 font-medium">Besoins journaliers EPA+DHA (arthrose)</div>
+              <div class="text-xs text-emerald-600 font-medium" id="res-indication-label">Besoins journaliers EPA+DHA</div>
               <div class="text-3xl font-bold text-emerald-700 mt-1" id="res-besoins">—</div>
               <div class="text-xs text-emerald-500">mg/jour</div>
             </div>
@@ -244,12 +277,14 @@
           <div class="p-3 bg-slate-50 rounded-xl space-y-2 text-xs text-gray-500">
             <div class="flex justify-between"><span>Poids idéal calculé</span><span class="font-medium text-gray-700" id="res-poids-ideal">—</span></div>
             <div class="flex justify-between"><span>BEE (130 × Pi^0,75)</span><span class="font-medium text-gray-700" id="res-bee">—</span></div>
+            <div id="row-be" class="hidden flex justify-between"><span id="res-be-label">BE (BEE × k1 × k2 × k3 × k4)</span><span class="font-medium text-gray-700" id="res-be">—</span></div>
+            <div id="row-ration-auto" class="hidden flex justify-between"><span>Ration calculée</span><span class="font-medium text-emerald-700" id="res-ration-auto">—</span></div>
             <div class="flex justify-between"><span>Seuil NRC 2006a — 2800 mg/Mcal BEE</span><span class="font-medium text-gray-700" id="res-seuil1">—</span></div>
             <div class="flex justify-between"><span>Seuil NRC 2006a — 360 mg/kg^0,75/j</span><span class="font-medium text-gray-700" id="res-seuil2">—</span></div>
           </div>
 
-          <div class="text-xs text-gray-400 italic text-center pt-1 border-t border-gray-100">
-            Cible : 0,14 g/kg⁰·⁷⁵/j EPA+DHA = 1,1 g/Mcal BEE
+          <div class="text-xs text-gray-400 italic text-center pt-1 border-t border-gray-100" id="res-cible-label">
+            Sélectionnez une indication
           </div>
         </div>
       </section>
@@ -427,6 +462,112 @@
   </div>
 </div>
 
+<!-- ===== MODAL INDICATIONS ===== -->
+<div id="modal-indications" class="modal fixed inset-0 bg-black/40 z-50 items-start justify-center p-4 overflow-y-auto">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg my-6">
+    <div class="flex items-center justify-between p-5 border-b border-gray-100">
+      <h3 class="font-semibold">Base de données — Indications</h3>
+      <button onclick="closeModal('modal-indications')" class="text-gray-400 hover:text-gray-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="p-5 border-b border-gray-100">
+      <h4 class="text-sm font-medium text-gray-600 mb-3" id="indic-form-title">Ajouter une indication</h4>
+      <input type="hidden" id="indic-edit-id">
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Nom de l'indication *</label>
+          <input type="text" id="indic-nom" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Valeur cible *</label>
+          <input type="number" id="indic-valeur" min="0" step="any" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Unité *</label>
+          <select id="indic-unite" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100 bg-white">
+            <option value="g/kg^0,75/j">g/kg^0,75/j</option>
+            <option value="g/Mcal de BEE/j">g/Mcal de BEE/j</option>
+            <option value="mg/kg/j">mg/kg/j</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Source</label>
+          <input type="text" id="indic-source" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+        </div>
+      </div>
+      <div class="flex gap-2 mt-3">
+        <button onclick="saveIndication()" class="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition"><span id="indic-btn-text">Ajouter</span></button>
+        <button onclick="resetIndicationForm()" class="px-4 py-2 bg-gray-100 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Annuler</button>
+      </div>
+    </div>
+    <div class="p-5 max-h-72 overflow-y-auto" id="indications-list">
+      <p class="text-sm text-gray-400 text-center py-4">Aucune indication enregistrée</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL K-PARAMS ===== -->
+<div id="modal-kparams" class="modal fixed inset-0 bg-black/40 z-50 items-start justify-center p-4 overflow-y-auto">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-md my-6">
+    <div class="flex items-center justify-between p-5 border-b border-gray-100">
+      <h3 class="font-semibold">Calcul automatique de la ration</h3>
+      <button onclick="closeKParams()" class="text-gray-400 hover:text-gray-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="p-5 space-y-4">
+      <p class="text-xs text-gray-400">BE = BEE × k1 × k2 × k3 × k4 &nbsp;·&nbsp; Ration = BE ÷ EM × 100</p>
+
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">k1 — Race</label>
+        <select id="k1" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100 bg-white" onchange="updateKParamsPreview()">
+          <option value="1.0">Race standard — 1,0</option>
+          <option value="0.8">Labrador, Terre-Neuve ou Nordique — 0,8</option>
+          <option value="0.9">Beagle — 0,9</option>
+          <option value="1.2">Lévrier — 1,2</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">k2 — Niveau d'activité</label>
+        <select id="k2" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100 bg-white" onchange="updateKParamsPreview()">
+          <option value="0.8">1 h d'exercice / jour — 0,8</option>
+          <option value="0.9">2 h d'exercice / jour — 0,9</option>
+          <option value="1.0">3 h d'exercice / jour — 1,0</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">k3 — Statut reproducteur</label>
+        <select id="k3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100 bg-white" onchange="updateKParamsPreview()">
+          <option value="0.8">Stérilisé — 0,8</option>
+          <option value="0.9">Senior entier — 0,9</option>
+          <option value="1.0">Adulte entier — 1,0</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">k4 — Objectif de poids</label>
+        <select id="k4" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100 bg-white" onchange="updateKParamsPreview()">
+          <option value="1.0">Normal — 1,0</option>
+          <option value="0.8">Perte de poids — 0,8</option>
+          <option value="1.2">Gain de poids — 1,2</option>
+        </select>
+      </div>
+
+      <div id="kparams-be-preview" class="hidden p-3 bg-emerald-50 rounded-xl text-xs text-emerald-700 space-y-1">
+        <div class="flex justify-between"><span>BE calculé</span><span class="font-semibold" id="kparams-be">—</span></div>
+        <div class="flex justify-between"><span>Ration estimée</span><span class="font-semibold" id="kparams-ration">—</span></div>
+      </div>
+    </div>
+    <div class="flex gap-2 px-5 pb-5">
+      <button onclick="applyKParams()" class="flex-1 px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition">Valider</button>
+      <button onclick="closeKParams()" class="px-4 py-2 bg-gray-100 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Annuler</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ===== FIREBASE CONFIG =====
 // Remplacez ces valeurs par celles de votre projet Firebase :
@@ -441,8 +582,15 @@ const firebaseConfig = {
 };
 
 // ===== DATABASE =====
-const cache = { croquettes: [], huiles: [], gelules: [] };
-const LS_KEYS = { croquettes: 'vet_croquettes', huiles: 'vet_huiles', gelules: 'vet_gelules' };
+const cache = { croquettes: [], huiles: [], gelules: [], indications: [] };
+const LS_KEYS = { croquettes: 'vet_croquettes', huiles: 'vet_huiles', gelules: 'vet_gelules', indications: 'vet_indications' };
+
+const DEFAULT_INDICATIONS = [
+  { id: 'arthrose', nom: 'Arthrose', valeur: 0.14, unite: 'g/kg^0,75/j', source: 'NRC 2006a' },
+  { id: 'cardio_mgkg', nom: 'Cardiologie', valeur: 65, unite: 'mg/kg/j', source: '' },
+  { id: 'cardio_mcal', nom: 'Cardiologie', valeur: 1, unite: 'g/Mcal de BEE/j', source: '' },
+];
+
 let firestore = null;
 
 const loadDB = k => cache[k];
@@ -474,9 +622,11 @@ function initApp() {
 
   if (!isConfigured) {
     setSyncBadge('local');
-    cache.croquettes = JSON.parse(localStorage.getItem(LS_KEYS.croquettes) || '[]');
-    cache.huiles     = JSON.parse(localStorage.getItem(LS_KEYS.huiles)     || '[]');
-    cache.gelules    = JSON.parse(localStorage.getItem(LS_KEYS.gelules)    || '[]');
+    cache.croquettes  = JSON.parse(localStorage.getItem(LS_KEYS.croquettes)  || '[]');
+    cache.huiles      = JSON.parse(localStorage.getItem(LS_KEYS.huiles)      || '[]');
+    cache.gelules     = JSON.parse(localStorage.getItem(LS_KEYS.gelules)     || '[]');
+    cache.indications = JSON.parse(localStorage.getItem(LS_KEYS.indications) || 'null');
+    if (!cache.indications) { cache.indications = DEFAULT_INDICATIONS; localStorage.setItem(LS_KEYS.indications, JSON.stringify(cache.indications)); }
     renderAll();
     return;
   }
@@ -485,18 +635,24 @@ function initApp() {
   firestore = firebase.firestore();
   setSyncBadge('connecting');
 
-  const ready = { croquettes: false, huiles: false, gelules: false };
+  const ready = { croquettes: false, huiles: false, gelules: false, indications: false };
 
-  ['croquettes', 'huiles', 'gelules'].forEach(key => {
+  ['croquettes', 'huiles', 'gelules', 'indications'].forEach(key => {
     firestore.collection('vet_data').doc(key).onSnapshot(
       doc => {
-        cache[key] = doc.exists ? (doc.data().items || []) : [];
-        if (!doc.exists) firestore.collection('vet_data').doc(key).set({ items: [] });
+        if (!doc.exists) {
+          const seed = key === 'indications' ? DEFAULT_INDICATIONS : [];
+          firestore.collection('vet_data').doc(key).set({ items: seed });
+          cache[key] = seed;
+        } else {
+          cache[key] = doc.data().items || [];
+        }
         ready[key] = true;
         if (Object.values(ready).every(Boolean)) setSyncBadge('ok');
-        if (key === 'croquettes') { renderCroquettesList(); updateCroquettesSelect(); }
-        if (key === 'huiles')     { renderHuilesList();     updateHuilesSelect(); }
-        if (key === 'gelules')    { renderGelulesList();    updateGelulesSelect(); }
+        if (key === 'croquettes')  { renderCroquettesList();  updateCroquettesSelect(); }
+        if (key === 'huiles')      { renderHuilesList();      updateHuilesSelect(); }
+        if (key === 'gelules')     { renderGelulesList();     updateGelulesSelect(); }
+        if (key === 'indications') { renderIndicationsList(); updateIndicationsSelect(); }
         calculate();
       },
       err => { console.error(err); setSyncBadge('error'); }
@@ -505,33 +661,44 @@ function initApp() {
 }
 
 function renderAll() {
-  renderCroquettesList(); updateCroquettesSelect();
-  renderHuilesList();     updateHuilesSelect();
-  renderGelulesList();    updateGelulesSelect();
+  renderCroquettesList();  updateCroquettesSelect();
+  renderHuilesList();      updateHuilesSelect();
+  renderGelulesList();     updateGelulesSelect();
+  renderIndicationsList(); updateIndicationsSelect();
   calculate();
 }
 
 // ===== CUSTOM DROPDOWNS =====
-function ddToggle(id) {
-  const panel = document.getElementById(id + '-panel');
-  const open  = !panel.classList.contains('hidden');
-  document.querySelectorAll('.dd-panel').forEach(p => p.classList.add('hidden'));
-  if (!open) {
-    panel.classList.remove('hidden');
-    const input = document.getElementById(id + '-input');
-    if (input) input.focus();
-  }
+const DD_PLACEHOLDERS = {
+  croquette:  '— Sélectionner un aliment —',
+  huile:      '— Sélectionner une huile —',
+  gelule:     '— Sélectionner des gélules —',
+  indication: '— Sélectionner une indication —',
+};
+const DD_ALL = ['croquette', 'huile', 'gelule', 'indication'];
+
+function ddOpenCustom(name) {
+  DD_ALL.forEach(n => { if (n !== name) ddCloseCustom(n); });
+  document.querySelectorAll('.dd-panel').forEach(p => {
+    if (p.id !== 'dd-' + name + '-panel') p.classList.add('hidden');
+  });
+  document.getElementById('dd-' + name + '-display').classList.add('hidden');
+  const input = document.getElementById('dd-' + name + '-input');
+  input.classList.remove('hidden');
+  input.value = '';
+  input.focus();
+  document.getElementById('dd-' + name + '-panel').classList.remove('hidden');
+  Array.from(document.getElementById('dd-' + name + '-panel').querySelectorAll('li')).forEach(li => li.style.display = '');
 }
 
-function ddOpen(id) {
-  document.querySelectorAll('.dd-panel').forEach(p => {
-    if (p.id !== id + '-panel') p.classList.add('hidden');
-  });
-  document.getElementById(id + '-panel').classList.remove('hidden');
+function ddCloseCustom(name) {
+  const input = document.getElementById('dd-' + name + '-input');
+  if (input) input.classList.add('hidden');
+  const display = document.getElementById('dd-' + name + '-display');
+  if (display) display.classList.remove('hidden');
 }
 
 function ddFilter(id, query) {
-  ddOpen(id);
   const q = query.toLowerCase().trim();
   Array.from(document.getElementById(id + '-panel').querySelectorAll('li')).forEach((li, i) => {
     if (i === 0) { li.style.display = q ? 'none' : ''; return; }
@@ -541,6 +708,7 @@ function ddFilter(id, query) {
 
 function ddBlur(name) {
   setTimeout(() => {
+    ddCloseCustom(name);
     ddRenderLabel(name, document.getElementById('select-' + name).value);
     Array.from(document.getElementById('dd-' + name + '-panel').querySelectorAll('li'))
       .forEach(li => li.style.display = '');
@@ -548,12 +716,15 @@ function ddBlur(name) {
 }
 
 document.addEventListener('click', e => {
-  if (!e.target.closest('.dd-wrap'))
+  if (!e.target.closest('.dd-wrap')) {
     document.querySelectorAll('.dd-panel').forEach(p => p.classList.add('hidden'));
+    DD_ALL.forEach(ddCloseCustom);
+  }
 });
 
 function ddPick(name, value, callback) {
   document.getElementById('select-' + name).value = value;
+  ddCloseCustom(name);
   ddRenderLabel(name, value);
   const panel = document.getElementById('dd-' + name + '-panel');
   panel.classList.add('hidden');
@@ -562,13 +733,22 @@ function ddPick(name, value, callback) {
 }
 
 function ddRenderLabel(name, value) {
-  const input = document.getElementById('dd-' + name + '-input');
-  if (!value) { input.value = ''; return; }
-  const dbKey = name === 'croquette' ? 'croquettes' : name === 'huile' ? 'huiles' : 'gelules';
+  const display = document.getElementById('dd-' + name + '-display');
+  if (!value) {
+    display.innerHTML = `<span class="text-gray-400">${DD_PLACEHOLDERS[name] || ''}</span>`;
+    return;
+  }
+  const dbKey = name === 'croquette' ? 'croquettes' : name === 'huile' ? 'huiles' : name === 'gelule' ? 'gelules' : 'indications';
   const item  = loadDB(dbKey).find(x => x.id === value);
-  if (!item) return;
-  const mainName = name === 'croquette' ? (item.marque ? item.marque + ' — ' : '') + item.nom : item.nom;
-  input.value = mainName + (item.annee ? ` — Màj ${item.annee}` : '');
+  if (!item) { display.innerHTML = `<span class="text-gray-400">${DD_PLACEHOLDERS[name] || ''}</span>`; return; }
+  let mainName;
+  if (name === 'croquette') mainName = (item.marque ? item.marque + ' — ' : '') + item.nom;
+  else if (name === 'indication') mainName = `${item.nom} — ${item.valeur} ${item.unite}`;
+  else mainName = item.nom;
+  const suffix = name === 'indication'
+    ? (item.source ? ` <span class="text-xs text-gray-400 font-normal">— ${item.source}</span>` : '')
+    : (item.annee  ? ` <span class="text-xs text-gray-400 font-normal">— Màj ${item.annee}</span>` : '');
+  display.innerHTML = `<span class="text-gray-800">${mainName}</span>${suffix}`;
 }
 
 // ===== UI HELPERS =====
@@ -595,12 +775,22 @@ function calcEM(p) {
 }
 
 // ===== MAIN CALCULATION =====
+function calcBesoins(indic, poids_ideal, bee) {
+  if (!indic) return null;
+  if (indic.unite === 'g/kg^0,75/j')    return indic.valeur * 1000 * Math.pow(poids_ideal, 0.75);
+  if (indic.unite === 'g/Mcal de BEE/j') return indic.valeur * bee;
+  if (indic.unite === 'mg/kg/j')         return indic.valeur * poids_ideal;
+  return null;
+}
+
 function calculate() {
   const poids  = parseFloat(document.getElementById('poids').value);
   const nec    = parseFloat(document.getElementById('nec').value);
-  const ration = parseFloat(document.getElementById('ration').value);
   const cId    = document.getElementById('select-croquette').value;
   const croque = loadDB('croquettes').find(c => c.id === cId);
+  const indicId = document.getElementById('select-indication').value;
+  const indic  = loadDB('indications').find(i => i.id === indicId) || null;
+  const rationAuto = document.getElementById('ration-auto').checked;
 
   if (!poids || !nec) {
     document.getElementById('results-empty').classList.remove('hidden');
@@ -611,7 +801,30 @@ function calculate() {
   // Phase 1 — poids + nec suffisent
   const poids_ideal = poids * 100 / (100 + (nec - 5) * 10);
   const bee     = 130 * Math.pow(poids_ideal, 0.75);
-  const besoins = bee * 1.1;  // 1.1 g/Mcal BEE = 1.1 mg/kcal BEE (≈ 0.14 g/kg^0.75/j)
+  const besoins = indic ? calcBesoins(indic, poids_ideal, bee) : null;
+
+  // Ration : manuelle ou calculée automatiquement
+  let ration;
+  if (rationAuto && croque) {
+    const k1 = parseFloat(document.getElementById('k1').value);
+    const k2 = parseFloat(document.getElementById('k2').value);
+    const k3 = parseFloat(document.getElementById('k3').value);
+    const k4 = parseFloat(document.getElementById('k4').value);
+    const be = bee * k1 * k2 * k3 * k4;
+    const em = calcEM(croque);
+    ration = be / em * 100;
+    document.getElementById('row-be').classList.remove('hidden');
+    document.getElementById('row-ration-auto').classList.remove('hidden');
+    const kProduct = (k1 * k2 * k3 * k4).toFixed(3);
+    document.getElementById('res-be-label').textContent = `BE (BEE × ${kProduct})`;
+    document.getElementById('res-be').textContent = Math.round(be) + ' kcal/j';
+    document.getElementById('res-ration-auto').textContent = Math.round(ration) + ' g/j';
+    updateKParamsPreview();
+  } else {
+    ration = parseFloat(document.getElementById('ration').value);
+    document.getElementById('row-be').classList.add('hidden');
+    document.getElementById('row-ration-auto').classList.add('hidden');
+  }
 
   const seuil1 = 2800 * bee / 1000;
   const seuil2 = 360 * Math.pow(poids_ideal, 0.75);
@@ -621,17 +834,27 @@ function calculate() {
 
   const proprio = document.getElementById('proprietaire').value;
   const chien   = document.getElementById('nom_chien').value;
+  const rationLabel = ration ? ` &nbsp;·&nbsp; Ration ${Math.round(ration)} g/j${rationAuto ? ' <span class="text-emerald-600">(auto)</span>' : ''}` : '';
   document.getElementById('patient-summary').innerHTML =
-    `<span class="font-semibold text-gray-700">${chien || 'Chien'}</span>${proprio ? ' — ' + proprio : ''} &nbsp;·&nbsp; ${poids} kg &nbsp;·&nbsp; NEC ${nec}${ration ? ' &nbsp;·&nbsp; Ration ' + ration + ' g/j' : ''}`;
+    `<span class="font-semibold text-gray-700">${chien || 'Chien'}</span>${proprio ? ' — ' + proprio : ''} &nbsp;·&nbsp; ${poids} kg &nbsp;·&nbsp; NEC ${nec}${rationLabel}`;
 
-  document.getElementById('res-besoins').textContent      = Math.round(besoins);
+  const indicLabel = indic ? `Besoins journaliers EPA+DHA — ${indic.nom}` : 'Besoins journaliers EPA+DHA';
+  document.getElementById('res-indication-label').textContent = indicLabel;
+  document.getElementById('res-besoins').textContent      = besoins !== null ? Math.round(besoins) : '—';
   document.getElementById('res-poids-ideal').textContent  = poids_ideal.toFixed(1) + ' kg';
   document.getElementById('res-bee').textContent          = Math.round(bee) + ' kcal/j';
   document.getElementById('res-seuil1').textContent       = Math.round(seuil1) + ' mg/j';
   document.getElementById('res-seuil2').textContent       = Math.round(seuil2) + ' mg/j';
 
+  if (indic) {
+    const srcPart = indic.source ? ` — ${indic.source}` : '';
+    document.getElementById('res-cible-label').textContent = `Cible : ${indic.valeur} ${indic.unite} EPA+DHA${srcPart}`;
+  } else {
+    document.getElementById('res-cible-label').textContent = 'Sélectionnez une indication';
+  }
+
   // Phase 2 — ration + aliment requis pour le reste
-  if (!ration || !croque) {
+  if (!ration || !croque || besoins === null) {
     document.getElementById('res-croque').textContent  = '—';
     document.getElementById('res-deficit').textContent = '—';
     setDeficitColor(false);
@@ -983,6 +1206,153 @@ function onGeluleChange() {
   calculate();
 }
 
+// ===== INDICATIONS =====
+function saveIndication() {
+  const nom    = document.getElementById('indic-nom').value.trim();
+  const valeur = parseFloat(document.getElementById('indic-valeur').value);
+  const unite  = document.getElementById('indic-unite').value;
+  if (!nom || isNaN(valeur)) { alert('Veuillez renseigner le nom et la valeur cible.'); return; }
+  const entry = { nom, valeur, unite, source: document.getElementById('indic-source').value.trim() };
+  const db = loadDB('indications');
+  const eid = document.getElementById('indic-edit-id').value;
+  if (eid) { const i = db.findIndex(x => x.id === eid); if (i !== -1) db[i] = { ...db[i], ...entry }; }
+  else db.push({ id: genId(), ...entry });
+  saveDB('indications', db);
+  resetIndicationForm(); renderIndicationsList(); updateIndicationsSelect(); calculate();
+}
+
+function resetIndicationForm() {
+  ['indic-edit-id','indic-nom','indic-valeur','indic-source'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('indic-unite').value = 'g/kg^0,75/j';
+  document.getElementById('indic-form-title').textContent = 'Ajouter une indication';
+  document.getElementById('indic-btn-text').textContent   = 'Ajouter';
+}
+
+function editIndication(id) {
+  const indic = loadDB('indications').find(x => x.id === id); if (!indic) return;
+  document.getElementById('indic-edit-id').value = indic.id;
+  document.getElementById('indic-nom').value     = indic.nom;
+  document.getElementById('indic-valeur').value  = indic.valeur;
+  document.getElementById('indic-unite').value   = indic.unite;
+  document.getElementById('indic-source').value  = indic.source || '';
+  document.getElementById('indic-form-title').textContent = "Modifier l'indication";
+  document.getElementById('indic-btn-text').textContent   = 'Enregistrer';
+}
+
+function deleteIndication(id) {
+  if (!confirm('Supprimer cette indication ?')) return;
+  const cur = document.getElementById('select-indication').value;
+  if (cur === id) { document.getElementById('select-indication').value = ''; ddRenderLabel('indication', ''); }
+  saveDB('indications', loadDB('indications').filter(x => x.id !== id));
+  renderIndicationsList(); updateIndicationsSelect(); calculate();
+}
+
+function renderIndicationsList() {
+  const db = loadDB('indications'), el = document.getElementById('indications-list');
+  if (!db.length) { el.innerHTML = '<p class="text-sm text-gray-400 text-center py-4">Aucune indication enregistrée</p>'; return; }
+  el.innerHTML = db.map(indic => `<div class="flex items-start justify-between p-3 bg-gray-50 rounded-xl mb-2 gap-2">
+    <div class="flex-1 min-w-0">
+      <div class="text-sm font-medium">${indic.nom}</div>
+      <div class="text-xs text-gray-400 mt-0.5">${indic.valeur} ${indic.unite}${indic.source ? ' — ' + indic.source : ''}</div>
+    </div>
+    <div class="flex gap-1 flex-shrink-0">
+      <button onclick="editIndication('${indic.id}')" class="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg">${iEdit}</button>
+      <button onclick="deleteIndication('${indic.id}')" class="p-1.5 text-red-400 hover:bg-red-50 rounded-lg">${iDel}</button>
+    </div>
+  </div>`).join('');
+}
+
+function updateIndicationsSelect() {
+  const db  = loadDB('indications');
+  const cur = document.getElementById('select-indication').value;
+  const panel = document.getElementById('dd-indication-panel');
+  panel.innerHTML =
+    `<li class="px-3 py-2 text-sm text-gray-400 cursor-default hover:bg-gray-50" onclick="ddPickIndication('')">— Sélectionner une indication —</li>` +
+    db.map(indic => {
+      const search = (indic.nom + ' ' + indic.unite + ' ' + (indic.source || '')).toLowerCase();
+      return `<li data-search="${search}" class="px-3 py-2 text-sm cursor-pointer hover:bg-emerald-50 flex items-baseline gap-1" onclick="ddPickIndication('${indic.id}')">
+        <span class="text-gray-800">${indic.nom} — ${indic.valeur} ${indic.unite}</span>
+        ${indic.source ? `<span class="text-xs text-gray-400 font-normal">— ${indic.source}</span>` : ''}
+      </li>`;
+    }).join('');
+  const stillExists = db.find(x => x.id === cur);
+  if (!stillExists) document.getElementById('select-indication').value = '';
+  ddRenderLabel('indication', stillExists ? cur : '');
+}
+
+function ddPickIndication(value) {
+  ddPick('indication', value, calculate);
+}
+
+function ddBlurIndication() {
+  ddBlur('indication');
+}
+
+// ===== RATION AUTO =====
+function onRationAutoChange() {
+  const checked = document.getElementById('ration-auto').checked;
+  document.getElementById('ration').classList.toggle('hidden', checked);
+  document.getElementById('ration-auto-summary').classList.toggle('hidden', !checked);
+  if (checked) {
+    openModal('modal-kparams');
+    updateKParamsPreview();
+  } else {
+    document.getElementById('row-be').classList.add('hidden');
+    document.getElementById('row-ration-auto').classList.add('hidden');
+  }
+  calculate();
+}
+
+function updateKParamsPreview() {
+  const poids  = parseFloat(document.getElementById('poids').value);
+  const nec    = parseFloat(document.getElementById('nec').value);
+  const cId    = document.getElementById('select-croquette').value;
+  const croque = loadDB('croquettes').find(c => c.id === cId);
+  if (!poids || !nec) { document.getElementById('kparams-be-preview').classList.add('hidden'); return; }
+  const poids_ideal = poids * 100 / (100 + (nec - 5) * 10);
+  const bee = 130 * Math.pow(poids_ideal, 0.75);
+  const k1 = parseFloat(document.getElementById('k1').value);
+  const k2 = parseFloat(document.getElementById('k2').value);
+  const k3 = parseFloat(document.getElementById('k3').value);
+  const k4 = parseFloat(document.getElementById('k4').value);
+  const be = bee * k1 * k2 * k3 * k4;
+  document.getElementById('kparams-be').textContent = Math.round(be) + ' kcal/j';
+  if (croque) {
+    const em = calcEM(croque);
+    document.getElementById('kparams-ration').textContent = Math.round(be / em * 100) + ' g/j';
+    document.getElementById('kparams-be-preview').classList.remove('hidden');
+  } else {
+    document.getElementById('kparams-ration').textContent = '— (sélectionner un aliment)';
+    document.getElementById('kparams-be-preview').classList.remove('hidden');
+  }
+}
+
+function applyKParams() {
+  closeModal('modal-kparams');
+  updateRationAutoSummary();
+  calculate();
+}
+
+function closeKParams() {
+  closeModal('modal-kparams');
+  if (!document.getElementById('ration-auto').checked) return;
+  updateRationAutoSummary();
+  calculate();
+}
+
+function updateRationAutoSummary() {
+  const k1 = parseFloat(document.getElementById('k1').value);
+  const k2 = parseFloat(document.getElementById('k2').value);
+  const k3 = parseFloat(document.getElementById('k3').value);
+  const k4 = parseFloat(document.getElementById('k4').value);
+  const k1Label = document.getElementById('k1').selectedOptions[0].text.split(' — ')[0];
+  const k2Label = document.getElementById('k2').selectedOptions[0].text.split(' — ')[0];
+  const k3Label = document.getElementById('k3').selectedOptions[0].text.split(' — ')[0];
+  const k4Label = document.getElementById('k4').selectedOptions[0].text.split(' — ')[0];
+  document.getElementById('ration-auto-text').innerHTML =
+    `<span class="font-medium">k1</span> ${k1Label} &nbsp;·&nbsp; <span class="font-medium">k2</span> ${k2Label} &nbsp;·&nbsp; <span class="font-medium">k3</span> ${k3Label} &nbsp;·&nbsp; <span class="font-medium">k4</span> ${k4Label}`;
+}
+
 // ===== COMPLEMENT TYPE =====
 function onComplementTypeChange() {
   const t = document.querySelector('input[name="complement-type"]:checked').value;
@@ -994,7 +1364,7 @@ function onComplementTypeChange() {
 
 // ===== INIT =====
 (function() {
-  resetCroquetteForm(); resetHuileForm(); resetGeluleForm();
+  resetCroquetteForm(); resetHuileForm(); resetGeluleForm(); resetIndicationForm();
   initApp();
 })();
 </script>
