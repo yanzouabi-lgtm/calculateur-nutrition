@@ -273,18 +273,31 @@
             </div>
           </div>
 
-          <!-- BEE / seuils -->
-          <div class="p-3 bg-slate-50 rounded-xl space-y-2 text-xs text-gray-500">
-            <div class="flex justify-between"><span>Poids idéal calculé</span><span class="font-medium text-gray-700" id="res-poids-ideal">—</span></div>
-            <div class="flex justify-between"><span>BEE (130 × Pi^0,75)</span><span class="font-medium text-gray-700" id="res-bee">—</span></div>
-            <div id="row-be" class="hidden flex justify-between"><span id="res-be-label">BE (BEE × k1 × k2 × k3 × k4)</span><span class="font-medium text-gray-700" id="res-be">—</span></div>
-            <div id="row-ration-auto" class="hidden flex justify-between"><span>Ration calculée</span><span class="font-medium text-emerald-700" id="res-ration-auto">—</span></div>
-            <div class="flex justify-between"><span>Seuil NRC 2006a — 2800 mg/Mcal BEE</span><span class="font-medium text-gray-700" id="res-seuil1">—</span></div>
-            <div class="flex justify-between"><span>Seuil NRC 2006a — 360 mg/kg^0,75/j</span><span class="font-medium text-gray-700" id="res-seuil2">—</span></div>
+          <!-- éléments masqués conservés pour le calcul JS -->
+          <div class="hidden">
+            <span id="res-poids-ideal"></span>
+            <span id="res-bee"></span>
+            <span id="res-seuil1"></span>
+            <span id="res-seuil2"></span>
+            <span id="res-cible-label"></span>
+            <div id="row-be"><span id="res-be-label"></span><span id="res-be"></span></div>
+            <div id="row-ration-auto"><span id="res-ration-auto"></span></div>
           </div>
 
-          <div class="text-xs text-gray-400 italic text-center pt-1 border-t border-gray-100" id="res-cible-label">
-            Sélectionnez une indication
+          <!-- Prescription -->
+          <div class="space-y-2 pt-1 border-t border-gray-100">
+            <div class="flex items-center justify-between">
+              <div class="text-xs font-medium text-gray-500 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                Prescription
+              </div>
+              <button id="copy-btn" onclick="copyPrescription()" class="text-xs text-emerald-600 hover:text-emerald-800 font-medium flex items-center gap-1 transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                <span id="copy-label">Copier</span>
+              </button>
+            </div>
+            <textarea id="prescription-text" rows="5" spellcheck="false"
+              class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-xs text-gray-700 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition resize-y leading-relaxed"></textarea>
           </div>
         </div>
       </section>
@@ -860,6 +873,7 @@ function calculate() {
     setDeficitColor(false);
     document.getElementById('warning-box').classList.add('hidden');
     document.getElementById('dose-box').classList.add('hidden');
+    document.getElementById('prescription-text').value = buildPrescriptionText(indic, croque, ration, null, null, undefined);
     return;
   }
 
@@ -904,12 +918,18 @@ function calculate() {
   } else {
     doseBox.classList.add('hidden');
   }
+
+  document.getElementById('prescription-text').value = buildPrescriptionText(indic, croque, ration, type, complement, deficit);
 }
 
 // ===== MODALS =====
 function openModal(id)  { document.getElementById(id).classList.add('active'); document.body.style.overflow = 'hidden'; }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); document.body.style.overflow = ''; }
-document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); }));
+document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => {
+  if (e.target !== m) return;
+  if (m.id === 'modal-kparams') closeKParams();
+  else closeModal(m.id);
+}));
 
 // ===== SVG ICONS =====
 const iEdit = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>`;
@@ -1289,11 +1309,14 @@ function ddBlurIndication() {
 }
 
 // ===== RATION AUTO =====
+let _kparamsFirstOpen = false;
+
 function onRationAutoChange() {
   const checked = document.getElementById('ration-auto').checked;
   document.getElementById('ration').classList.toggle('hidden', checked);
   document.getElementById('ration-auto-summary').classList.toggle('hidden', !checked);
   if (checked) {
+    _kparamsFirstOpen = true;
     openModal('modal-kparams');
     updateKParamsPreview();
   } else {
@@ -1328,6 +1351,7 @@ function updateKParamsPreview() {
 }
 
 function applyKParams() {
+  _kparamsFirstOpen = false;
   closeModal('modal-kparams');
   updateRationAutoSummary();
   calculate();
@@ -1335,6 +1359,16 @@ function applyKParams() {
 
 function closeKParams() {
   closeModal('modal-kparams');
+  if (_kparamsFirstOpen) {
+    _kparamsFirstOpen = false;
+    document.getElementById('ration-auto').checked = false;
+    document.getElementById('ration').classList.remove('hidden');
+    document.getElementById('ration-auto-summary').classList.add('hidden');
+    document.getElementById('row-be').classList.add('hidden');
+    document.getElementById('row-ration-auto').classList.add('hidden');
+    calculate();
+    return;
+  }
   if (!document.getElementById('ration-auto').checked) return;
   updateRationAutoSummary();
   calculate();
@@ -1351,6 +1385,39 @@ function updateRationAutoSummary() {
   const k4Label = document.getElementById('k4').selectedOptions[0].text.split(' — ')[0];
   document.getElementById('ration-auto-text').innerHTML =
     `<span class="font-medium">k1</span> ${k1Label} &nbsp;·&nbsp; <span class="font-medium">k2</span> ${k2Label} &nbsp;·&nbsp; <span class="font-medium">k3</span> ${k3Label} &nbsp;·&nbsp; <span class="font-medium">k4</span> ${k4Label}`;
+}
+
+// ===== PRESCRIPTION =====
+function buildPrescriptionText(indic, croque, ration, type, complement, deficit) {
+  const indicName  = indic  ? indic.nom  : '[indication]';
+  const alimentName = croque
+    ? (croque.marque ? croque.marque + ' ' + croque.nom : croque.nom)
+    : '[aliment]';
+  const quantite = (ration && croque)
+    ? Math.round(ration) + ' g/jour'
+    : '[quantité]';
+
+  let complementText;
+  if (!complement || deficit === undefined || deficit <= 0) {
+    complementText = 'Aucune';
+  } else if (type === 'huile') {
+    const dose = deficit / (complement.concentration * 10);
+    complementText = `${dose.toFixed(1)} mL/jour de ${complement.nom}`;
+  } else {
+    const dose = deficit / complement.epa_dha_par_gelule;
+    complementText = `${Math.ceil(dose)} gélule(s)/jour de ${complement.nom}`;
+  }
+
+  return `Recommandations nutritionnelles dans le cadre de la gestion de ${indicName} :\n\n* Aliment : ${alimentName}\n* Quantité : ${quantite}\n* Complémentation : ${complementText}`;
+}
+
+function copyPrescription() {
+  const text = document.getElementById('prescription-text').value;
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    document.getElementById('copy-label').textContent = '✓ Copié !';
+    setTimeout(() => { document.getElementById('copy-label').textContent = 'Copier'; }, 2000);
+  });
 }
 
 // ===== COMPLEMENT TYPE =====
