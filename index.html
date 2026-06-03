@@ -58,11 +58,17 @@
           </div>
           <div>
             <label class="block text-xs font-medium text-gray-500 mb-1">Espèce *</label>
-            <select id="espece" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition bg-white" onchange="updateCroquettesSelect(); calculate()">
-              <option value="">— Sélectionner —</option>
-              <option value="Chien">Chien</option>
-              <option value="Chat">Chat</option>
-            </select>
+            <input type="hidden" id="espece">
+            <div class="flex gap-2">
+              <button type="button" id="espece-btn-chien" onclick="setEspece('Chien')"
+                class="flex-1 px-3 py-2 rounded-lg text-sm font-medium border-2 transition border-gray-200 text-gray-400 hover:border-blue-300 hover:text-blue-500">
+                Chien
+              </button>
+              <button type="button" id="espece-btn-chat" onclick="setEspece('Chat')"
+                class="flex-1 px-3 py-2 rounded-lg text-sm font-medium border-2 transition border-gray-200 text-gray-400 hover:border-purple-300 hover:text-purple-500">
+                Chat
+              </button>
+            </div>
           </div>
           <div>
             <label class="block text-xs font-medium text-gray-500 mb-1">Poids actuel (kg) *</label>
@@ -823,7 +829,7 @@ function ddRenderLabel(name, value) {
   const item  = loadDB(dbKey).find(x => x.id === value);
   if (!item) { display.innerHTML = `<span class="text-gray-400">${DD_PLACEHOLDERS[name] || ''}</span>`; return; }
   let mainName;
-  if (name === 'croquette') mainName = (item.marque ? item.marque + ' — ' : '') + item.nom;
+  if (name === 'croquette') mainName = especeBadge(item.espece) + ' ' + (item.marque ? item.marque + ' — ' : '') + item.nom;
   else if (name === 'indication') mainName = `${item.nom} — ${item.valeur} ${item.unite}`;
   else mainName = item.nom;
   const suffix = name === 'indication'
@@ -1094,8 +1100,32 @@ function renderCroquettesList() {
   }).join('');
 }
 
+function especeBadge(espece) {
+  if (!espece) return '';
+  const cls = espece === 'Chat' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600';
+  return `<span class="text-xs px-1.5 py-0.5 rounded-full font-normal ${cls}">${espece}</span>`;
+}
+
+function setEspece(val) {
+  document.getElementById('espece').value = val;
+  const btnChien = document.getElementById('espece-btn-chien');
+  const btnChat  = document.getElementById('espece-btn-chat');
+  btnChien.className = val === 'Chien'
+    ? 'flex-1 px-3 py-2 rounded-lg text-sm font-medium border-2 transition border-blue-400 bg-blue-50 text-blue-600'
+    : 'flex-1 px-3 py-2 rounded-lg text-sm font-medium border-2 transition border-gray-200 text-gray-400 hover:border-blue-300 hover:text-blue-500';
+  btnChat.className = val === 'Chat'
+    ? 'flex-1 px-3 py-2 rounded-lg text-sm font-medium border-2 transition border-purple-400 bg-purple-50 text-purple-600'
+    : 'flex-1 px-3 py-2 rounded-lg text-sm font-medium border-2 transition border-gray-200 text-gray-400 hover:border-purple-300 hover:text-purple-500';
+  updateCroquettesSelect();
+  calculate();
+}
+
 function updateCroquettesSelect() {
-  const db  = loadDB('croquettes');
+  const allDb = loadDB('croquettes');
+  const selectedEspece = document.getElementById('espece').value;
+  const db = selectedEspece
+    ? allDb.filter(c => !c.espece || c.espece === selectedEspece)
+    : allDb;
   const cur = document.getElementById('select-croquette').value;
   const panel = document.getElementById('dd-croquette-panel');
   panel.innerHTML =
@@ -1103,7 +1133,8 @@ function updateCroquettesSelect() {
     db.map(c => {
       const name   = (c.marque ? c.marque + ' — ' : '') + c.nom;
       const search = ((c.marque || '') + ' ' + c.nom).toLowerCase();
-      return `<li data-search="${search}" class="px-3 py-2 text-sm cursor-pointer hover:bg-emerald-50 flex items-baseline gap-1" onclick="ddPick('croquette','${c.id}',onCroquetteChange)">
+      return `<li data-search="${search}" class="px-3 py-2 text-sm cursor-pointer hover:bg-emerald-50 flex items-center gap-1.5" onclick="ddPick('croquette','${c.id}',onCroquetteChange)">
+        ${especeBadge(c.espece)}
         <span class="text-gray-800">${name}</span>
         ${c.annee ? `<span class="text-xs text-gray-400 font-normal">— Màj ${c.annee}</span>` : ''}
       </li>`;
