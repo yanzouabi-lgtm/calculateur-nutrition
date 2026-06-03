@@ -1,3 +1,4 @@
 scripts/serviceAccountKey.json
 scripts/node_modules/
 .claude/
+CLAUDE.md
