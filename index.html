@@ -1186,10 +1186,10 @@ function saveGelule() {
   const epa_dha_par_gelule = parseFloat(document.getElementById('gelule-epa').value);
   const nb_gelules       = parseFloat(document.getElementById('gelule-nb').value);
   const prix             = parseFloat(document.getElementById('gelule-prix').value);
-  if (!nom || isNaN(epa_dha_par_gelule) || isNaN(nb_gelules) || isNaN(prix)) { alert('Veuillez renseigner tous les champs.'); return; }
+  if (!nom || isNaN(epa_dha_par_gelule) || isNaN(nb_gelules)) { alert('Veuillez renseigner les champs obligatoires (*).'); return; }
   const db = loadDB('gelules'), eid = document.getElementById('gelule-edit-id').value;
   const annee = parseInt(document.getElementById('gelule-annee').value) || null;
-  const entry = { nom, epa_dha_par_gelule, nb_gelules, prix, annee };
+  const entry = { nom, epa_dha_par_gelule, nb_gelules, prix: isNaN(prix) ? 0 : prix, annee };
   if (eid) { const i = db.findIndex(g => g.id === eid); if (i !== -1) db[i] = { ...db[i], ...entry }; }
   else db.push({ id: genId(), ...entry });
   saveDB('gelules', db);
