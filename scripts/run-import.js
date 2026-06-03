@@ -34,6 +34,45 @@ const maxArg = args.find(a => a.startsWith('--max='))?.split('=')[1]
 const MAX_PRODUCTS = maxArg ? parseInt(maxArg, 10) : Infinity;
 
 const DELAY_MS = 2000;
+
+const BRAND_KEYWORDS = {
+  royalcanin: 'royal canin',
+  hills:      "hill's",
+  purina:     'purina',
+  virbac:     'virbac',
+};
+
+function validateNutrients(n) {
+  if (!n.proteins_percent || n.proteins_percent === 0) return 'protéines manquantes';
+  if (!n.fat_percent      || n.fat_percent === 0)      return 'matières grasses manquantes';
+  if (n.proteins_percent < 10 || n.proteins_percent > 65) return `protéines hors plage (${n.proteins_percent}%)`;
+  if (n.fat_percent < 3      || n.fat_percent > 45)       return `matières grasses hors plage (${n.fat_percent}%)`;
+  if (n.ash_percent  != null && (n.ash_percent < 1 || n.ash_percent > 15)) return `cendres hors plage (${n.ash_percent}%)`;
+  if (n.fiber_percent != null && n.fiber_percent > 30)                      return `cellulose hors plage (${n.fiber_percent}%)`;
+  // Somme des constituants
+  const sum = (n.proteins_percent ?? 0) + (n.fat_percent ?? 0)
+            + (n.fiber_percent ?? 0) + (n.ash_percent ?? 0) + (n.moisture_percent ?? 0);
+  if (sum > 100) return `somme constituants impossible (${sum.toFixed(1)}%)`;
+  if (sum < 20)  return `somme constituants trop faible — données probablement incomplètes (${sum.toFixed(1)}%)`;
+  return null;
+}
+
+function validateProduct(product, brandKey, batchNames) {
+  // Nom trop court
+  if (product.name.trim().length < 5) return 'nom trop court';
+  // Nom qui ressemble à un identifiant numérique
+  if (/^\d+$/.test(product.name.trim())) return 'nom invalide (numérique)';
+  // Cohérence marque
+  const expectedKeyword = BRAND_KEYWORDS[brandKey];
+  if (expectedKeyword && !product.name.toLowerCase().includes(expectedKeyword)
+      && !(product.brand || '').toLowerCase().includes(expectedKeyword)) {
+    return `marque incohérente — attendu "${expectedKeyword}", trouvé brand="${product.brand}"`;
+  }
+  // Doublon dans le batch courant
+  const normalizedName = product.name.toLowerCase().trim();
+  if (batchNames.has(normalizedName)) return 'doublon dans le batch';
+  return null;
+}
 const sleep    = ms => new Promise(r => setTimeout(r, ms));
 const line     = () => console.log('─'.repeat(60));
 
@@ -61,6 +100,7 @@ async function main() {
 
   let totalAdded = 0, totalSkipped = 0, totalErrors = 0;
   const allEntries = [];
+  const batchNames = new Set();
 
   try {
     for (const [brand, categoryUrl] of Object.entries(categories)) {
@@ -103,6 +143,24 @@ async function main() {
           }
 
           const n = product.nutrients;
+
+          const productRejection = validateProduct(product, brand, batchNames);
+          if (productRejection) {
+            console.log(`  ✗ REJETÉ (${productRejection}) : ${product.name}`);
+            totalErrors++;
+            continue;
+          }
+
+          const nutrientRejection = validateNutrients(n);
+          if (nutrientRejection) {
+            console.log(`  ✗ REJETÉ (${nutrientRejection}) : ${product.name}`);
+            console.log(`    P: ${n.proteins_percent ?? '?'}%  MG: ${n.fat_percent ?? '?'}%  CB: ${n.fiber_percent ?? '?'}%  Cendres: ${n.ash_percent ?? '?'}%`);
+            totalErrors++;
+            continue;
+          }
+
+          batchNames.add(product.name.toLowerCase().trim());
+
           console.log(
             `  ✓ ${product.brand} | ${product.name}\n` +
             `    P: ${n.proteins_percent ?? '?'}%  MG: ${n.fat_percent ?? '?'}%  ` +
@@ -131,9 +189,9 @@ async function main() {
     }
 
     // 5. Écriture groupée dans Firebase
-    if (!NO_FIREBASE && allEntries.length > 0) {
+    if (!NO_FIREBASE && !DRY_RUN && allEntries.length > 0) {
       console.log(`\n💾  Écriture dans Firebase (${allEntries.length} entrées)…`);
-      const { added, skipped } = await saveProducts(allEntries, { dryRun: DRY_RUN });
+      const { added, skipped } = await saveProducts(allEntries, { dryRun: false });
       totalAdded   += added;
       totalSkipped += skipped;
     } else if (DRY_RUN) {

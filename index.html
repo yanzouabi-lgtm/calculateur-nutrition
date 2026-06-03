@@ -53,8 +53,16 @@
             <input type="text" id="proprietaire" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition" oninput="calculate()">
           </div>
           <div>
-            <label class="block text-xs font-medium text-gray-500 mb-1">Nom du chien</label>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Nom de l'animal</label>
             <input type="text" id="nom_chien" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition" oninput="calculate()">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Espèce *</label>
+            <select id="espece" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition bg-white" onchange="updateCroquettesSelect(); calculate()">
+              <option value="">— Sélectionner —</option>
+              <option value="Chien">Chien</option>
+              <option value="Chat">Chat</option>
+            </select>
           </div>
           <div>
             <label class="block text-xs font-medium text-gray-500 mb-1">Poids actuel (kg) *</label>
@@ -329,6 +337,14 @@
         <div>
           <label class="block text-xs text-gray-500 mb-1">Nom du produit *</label>
           <input type="text" id="croque-nom" placeholder="Medium Adult" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100">
+        </div>
+        <div class="col-span-2">
+          <label class="block text-xs text-gray-500 mb-1">Espèce *</label>
+          <select id="croque-espece" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100 bg-white">
+            <option value="">— Sélectionner —</option>
+            <option value="Chien">Chien</option>
+            <option value="Chat">Chat</option>
+          </select>
         </div>
         <div>
           <label class="block text-xs text-gray-500 mb-1">Protéines brutes (%) *</label>
@@ -1005,9 +1021,11 @@ function saveCroquette() {
   if (!nom || isNaN(proteines) || isNaN(mg) || isNaN(cb) || isNaN(cendres)) {
     alert('Veuillez renseigner les champs obligatoires (*).'); return;
   }
+  const espece = document.getElementById('croque-espece').value;
+  if (!espece) { alert('Veuillez sélectionner une espèce.'); return; }
   const entry = {
     marque: document.getElementById('croque-marque').value.trim(),
-    nom, proteines, mg, cb, cendres,
+    nom, proteines, mg, cb, cendres, espece,
     humidite:     parseFloat(document.getElementById('croque-humidite').value) || 10,
     epa_dha:      parseFloat(document.getElementById('croque-epa').value) || 0,
     em_fabricant: parseFloat(document.getElementById('croque-em').value) || 0,
@@ -1023,7 +1041,7 @@ function saveCroquette() {
 }
 
 function resetCroquetteForm() {
-  ['croque-edit-id','croque-marque','croque-nom','croque-proteines','croque-mg','croque-cb','croque-cendres','croque-epa','croque-em','croque-prix'].forEach(id => document.getElementById(id).value = '');
+  ['croque-edit-id','croque-marque','croque-nom','croque-proteines','croque-mg','croque-cb','croque-cendres','croque-epa','croque-em','croque-prix','croque-espece'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('croque-humidite').value = '10';
   document.getElementById('croque-annee').value = new Date().getFullYear();
   document.getElementById('croque-form-title').textContent = 'Ajouter un aliment';
@@ -1045,6 +1063,7 @@ function editCroquette(id) {
   document.getElementById('croque-em').value        = c.em_fabricant || '';
   document.getElementById('croque-prix').value      = c.prix || '';
   document.getElementById('croque-annee').value     = c.annee || '';
+  document.getElementById('croque-espece').value    = c.espece || '';
   document.getElementById('croque-form-title').textContent = "Modifier l'aliment";
   document.getElementById('croque-btn-text').textContent   = 'Enregistrer';
   renderENA();
@@ -1064,7 +1083,7 @@ function renderCroquettesList() {
     const em = calcEM(c), ena = calcENA(c);
     return `<div class="flex items-start justify-between p-3 bg-gray-50 rounded-xl mb-2 gap-2">
       <div class="flex-1 min-w-0">
-        <div class="text-sm font-medium truncate">${c.marque ? c.marque + ' — ' : ''}${c.nom}${c.annee ? ' <span class="text-gray-400 font-normal text-xs">— Màj ' + c.annee + '</span>' : ''}</div>
+        <div class="text-sm font-medium truncate">${c.espece ? '<span class="text-xs font-normal px-1.5 py-0.5 rounded-full mr-1 ' + (c.espece === 'Chat' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600') + '">' + c.espece + '</span>' : ''}${c.marque ? c.marque + ' — ' : ''}${c.nom}${c.annee ? ' <span class="text-gray-400 font-normal text-xs">— Màj ' + c.annee + '</span>' : ''}</div>
         <div class="text-xs text-gray-400 mt-0.5">P : ${c.proteines}% MG : ${c.mg}% CB : ${c.cb}% H : ${c.humidite}% Cendres : ${c.cendres}% ENA : ${ena.toFixed(1)}% | EPA+DHA : ${c.epa_dha}% | EM : ${+em.toFixed(1)} kcal/100g${c.em_fabricant ? ' ✱fab.' : ''}</div>
       </div>
       <div class="flex gap-1 flex-shrink-0">

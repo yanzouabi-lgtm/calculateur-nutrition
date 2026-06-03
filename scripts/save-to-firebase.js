@@ -48,11 +48,17 @@ export function mapScrapedToEntry(product, opffCode) {
       ? 'estimated'
       : 'unknown';
 
+  // Détection espèce depuis l'URL ou le nom
+  const especeRaw = (product.source_url + ' ' + (product.name || '')).toLowerCase();
+  const espece = especeRaw.includes('chat') || especeRaw.includes('felin') || especeRaw.includes('cat')
+    ? 'Chat' : 'Chien';
+
   return {
     // — Champs existants du schéma —
     id:           opffCode,
     nom:          product.name  || '',
     marque:       product.brand || '',
+    espece,
     proteines:    n.proteins_percent  ?? 0,
     mg:           n.fat_percent       ?? 0,
     cb:           n.fiber_percent     ?? 0,
