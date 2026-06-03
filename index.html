@@ -736,8 +736,24 @@ function ddOpenCustom(name) {
   input.classList.remove('hidden');
   input.value = '';
   input.focus();
-  document.getElementById('dd-' + name + '-panel').classList.remove('hidden');
-  Array.from(document.getElementById('dd-' + name + '-panel').querySelectorAll('li')).forEach(li => li.style.display = '');
+
+  const panel = document.getElementById('dd-' + name + '-panel');
+  // Réinitialise le positionnement avant de mesurer
+  panel.style.top = '';
+  panel.style.bottom = '';
+  panel.style.marginTop = '';
+  panel.style.marginBottom = '';
+  panel.classList.remove('hidden');
+  Array.from(panel.querySelectorAll('li')).forEach(li => li.style.display = '');
+
+  // Ouvre vers le haut si le panel dépasse le bas de l'écran
+  const rect = panel.getBoundingClientRect();
+  if (rect.bottom > window.innerHeight - 8) {
+    panel.style.top = 'auto';
+    panel.style.bottom = '100%';
+    panel.style.marginTop = '0';
+    panel.style.marginBottom = '4px';
+  }
 }
 
 function ddCloseCustom(name) {
