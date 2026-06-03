@@ -156,11 +156,11 @@
           </label>
           <label class="flex-1 flex items-center gap-2.5 p-3 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-emerald-200 transition has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50">
             <input type="radio" name="complement-type" value="huile" onchange="onComplementTypeChange()" class="accent-emerald-600">
-            <div><div class="text-sm font-medium">Huile marine</div></div>
+            <div><div class="text-sm font-medium">Liquide</div></div>
           </label>
           <label class="flex-1 flex items-center gap-2.5 p-3 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-emerald-200 transition has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50">
             <input type="radio" name="complement-type" value="gelules" onchange="onComplementTypeChange()" class="accent-emerald-600">
-            <div><div class="text-sm font-medium">Gélules oméga-3</div></div>
+            <div><div class="text-sm font-medium">Gélules</div></div>
           </label>
         </div>
 
@@ -311,9 +311,12 @@
   <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl my-6">
     <div class="flex items-center justify-between p-5 border-b border-gray-100">
       <h3 class="font-semibold">Base de données — Aliments</h3>
-      <button onclick="closeModal('modal-croquettes')" class="text-gray-400 hover:text-gray-600">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
+      <div class="flex items-center gap-2">
+        <button onclick="openModal('modal-opff')" class="px-3 py-1.5 bg-blue-50 text-blue-600 text-xs font-medium rounded-lg hover:bg-blue-100 transition">Rechercher sur OPFF</button>
+        <button onclick="closeModal('modal-croquettes')" class="text-gray-400 hover:text-gray-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
     </div>
     <div class="p-5 border-b border-gray-100">
       <h4 class="text-sm font-medium text-gray-600 mb-3" id="croque-form-title">Ajouter un aliment</h4>
@@ -376,6 +379,39 @@
     </div>
     <div class="p-5 max-h-72 overflow-y-auto" id="croquettes-list">
       <p class="text-sm text-gray-400 text-center py-4">Aucun aliment enregistré</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL OPEN PET FOOD FACTS ===== -->
+<div id="modal-opff" class="modal fixed inset-0 bg-black/40 z-50 items-start justify-center p-4 overflow-y-auto">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl my-6">
+    <div class="flex items-center justify-between p-5 border-b border-gray-100">
+      <div>
+        <h3 class="font-semibold">Rechercher sur Open Pet Food Facts</h3>
+        <p class="text-xs text-gray-400 mt-0.5">Base de données collaborative de produits alimentaires pour animaux</p>
+      </div>
+      <button onclick="closeModal('modal-opff')" class="text-gray-400 hover:text-gray-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="p-5 border-b border-gray-100 space-y-2">
+      <div class="flex gap-2">
+        <input type="text" id="opff-search-input" placeholder="Nom de la croquette (ex : Royal Canin Medium Adult)"
+               class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100"
+               onkeydown="if(event.key==='Enter') searchOPFF()">
+        <button onclick="searchOPFF()" id="opff-search-btn" class="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition">Rechercher</button>
+      </div>
+      <div class="flex gap-2">
+        <input type="text" id="opff-barcode-input" placeholder="Code-barres EAN (ex : 3228021178)"
+               class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-100"
+               onkeydown="if(event.key==='Enter') lookupByBarcodeOPFF()">
+        <button onclick="lookupByBarcodeOPFF()" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition">Scan EAN</button>
+      </div>
+    </div>
+    <div id="opff-status" class="hidden px-5 pt-3 pb-1 text-sm"></div>
+    <div id="opff-results" class="p-5 max-h-96 overflow-y-auto">
+      <p class="text-sm text-gray-400 text-center py-6">Lancez une recherche par nom ou par code-barres EAN.</p>
     </div>
   </div>
 </div>
@@ -1428,6 +1464,178 @@ function onComplementTypeChange() {
   calculate();
 }
 
+
+// ===== OPEN PET FOOD FACTS =====
+
+const OPFF_BASE = 'https://world.openpetfoodfacts.org';
+const OPFF_OMEGA3_KEYWORDS = [
+  'huile de saumon', 'saumon', 'huile de lin', 'graines de lin',
+  'anchois', 'hareng', 'thon', 'maquereau', 'sardine', 'huile de poisson',
+];
+
+let opffSearchResults = [];
+
+function mapOPFFProduct(p) {
+  const n = p.nutriments || {};
+  const ingredientsRaw = p.ingredients_text_fr || p.ingredients_text_en || p.ingredients_text || '';
+  const lower = ingredientsRaw.toLowerCase();
+  const sourcesDetected = OPFF_OMEGA3_KEYWORDS.filter(kw => lower.includes(kw));
+  const omega3Direct = n['omega-3-fat_100g'] != null ? parseFloat(n['omega-3-fat_100g']) : null;
+  const energyKcal = n['energy-kcal_100g']
+    ? parseFloat(n['energy-kcal_100g'])
+    : (n.energy_100g ? Math.round(parseFloat(n.energy_100g) / 4.184) : 0);
+
+  return {
+    id: p.code || genId(),
+    ean: p.code || null,
+    nom: (p.product_name || p.product_name_fr || p.product_name_en || '').trim(),
+    marque: (p.brands || '').trim(),
+    proteines: parseFloat(n.proteins_100g) || 0,
+    mg: parseFloat(n.fat_100g) || 0,
+    cb: parseFloat(n.fiber_100g) || 0,
+    cendres: parseFloat(n.ash_100g) || 0,
+    humidite: parseFloat(n.moisture_100g) || 10,
+    epa_dha: 0,
+    em_fabricant: energyKcal,
+    prix: 0,
+    annee: new Date().getFullYear(),
+    source: 'open_pet_food_facts',
+    imported_at: new Date().toISOString(),
+    omega3_g_per_100g: omega3Direct,
+    contains_omega3_source: sourcesDetected.length > 0,
+    omega3_sources_detected: sourcesDetected,
+    ingredients_text: ingredientsRaw,
+    manually_reviewed: false,
+  };
+}
+
+function setOPFFStatus(msg, type = 'info') {
+  const el = document.getElementById('opff-status');
+  const colors = { info: 'text-gray-500', error: 'text-red-500', success: 'text-emerald-600' };
+  el.textContent = msg;
+  el.className = `px-5 pt-3 pb-1 text-sm ${colors[type] || colors.info}`;
+  el.classList.remove('hidden');
+}
+
+function renderOPFFResults(products) {
+  opffSearchResults = products.map(mapOPFFProduct);
+  const existingIds = new Set(loadDB('croquettes').map(c => c.id).filter(Boolean));
+  const el = document.getElementById('opff-results');
+
+  if (!opffSearchResults.length) {
+    el.innerHTML = '<p class="text-sm text-gray-400 text-center py-6">Aucun résultat — essayez d\'autres termes ou saisissez l\'aliment manuellement.</p>';
+    return;
+  }
+
+  el.innerHTML = opffSearchResults.map((entry, i) => {
+    const alreadyIn = existingIds.has(entry.id);
+    const label = (entry.marque ? entry.marque + ' — ' : '') + (entry.nom || '(sans nom)');
+    const hasNutrients = entry.proteines > 0 || entry.mg > 0;
+    return `<div class="flex items-start gap-3 p-3 bg-gray-50 rounded-xl mb-2">
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-medium truncate">${label}</div>
+        ${hasNutrients
+          ? `<div class="text-xs text-gray-400 mt-0.5">P&nbsp;${entry.proteines}% · MG&nbsp;${entry.mg}% · CB&nbsp;${entry.cb}% · Cendres&nbsp;${entry.cendres}% · H&nbsp;${entry.humidite}%${entry.em_fabricant ? ' · ' + entry.em_fabricant + '&nbsp;kcal/100g' : ''}</div>`
+          : `<div class="text-xs text-amber-500 mt-0.5">Nutriments non disponibles — à saisir manuellement après import</div>`}
+        ${entry.contains_omega3_source ? `<div class="text-xs text-emerald-600 mt-0.5">Sources oméga-3 détectées : ${entry.omega3_sources_detected.join(', ')}</div>` : ''}
+        ${entry.ean ? `<div class="text-xs text-gray-300 mt-0.5">EAN ${entry.ean}</div>` : ''}
+      </div>
+      <div class="flex-shrink-0 pt-0.5">
+        ${alreadyIn
+          ? `<span class="px-2 py-1 text-xs bg-gray-100 text-gray-400 rounded-lg">Déjà importé</span>`
+          : `<button onclick="importFromOPFF(${i})" class="px-3 py-1.5 bg-emerald-600 text-white text-xs font-medium rounded-lg hover:bg-emerald-700 transition">Importer</button>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function searchOPFF() {
+  const query = document.getElementById('opff-search-input').value.trim();
+  if (!query) return;
+
+  const btn = document.getElementById('opff-search-btn');
+  btn.disabled = true;
+  btn.textContent = '…';
+  document.getElementById('opff-results').innerHTML = '';
+  setOPFFStatus('Recherche en cours…');
+
+  try {
+    const url = `${OPFF_BASE}/cgi/search.pl?search_terms=${encodeURIComponent(query)}&tagtype_0=categories&tag_0=dog-food&json=1&page_size=10`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    const products = (data.products || []).filter(p => p.product_name || p.product_name_fr || p.product_name_en);
+
+    document.getElementById('opff-status').classList.add('hidden');
+    if (!products.length) {
+      setOPFFStatus('Aucun résultat pour cette recherche.', 'error');
+    } else {
+      setOPFFStatus(`${products.length} produit(s) trouvé(s)`, 'success');
+      renderOPFFResults(products);
+    }
+  } catch (e) {
+    setOPFFStatus('Erreur lors de la recherche — vérifiez votre connexion.', 'error');
+    console.error('OPFF search error:', e);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Rechercher';
+  }
+}
+
+async function lookupByBarcodeOPFF() {
+  const ean = document.getElementById('opff-barcode-input').value.trim();
+  if (!ean) return;
+
+  document.getElementById('opff-results').innerHTML = '';
+  setOPFFStatus('Recherche du produit…');
+
+  try {
+    const url = `${OPFF_BASE}/api/v2/product/${encodeURIComponent(ean)}.json`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+
+    if (data.status !== 1 || !data.product) {
+      setOPFFStatus('Produit non trouvé pour ce code-barres.', 'error');
+      return;
+    }
+    document.getElementById('opff-status').classList.add('hidden');
+    renderOPFFResults([data.product]);
+  } catch (e) {
+    setOPFFStatus('Erreur lors de la recherche EAN.', 'error');
+    console.error('OPFF barcode error:', e);
+  }
+}
+
+function importFromOPFF(i) {
+  const entry = opffSearchResults[i];
+  if (!entry) return;
+
+  const db = loadDB('croquettes');
+  if (db.find(c => c.id === entry.id)) {
+    setOPFFStatus('Ce produit est déjà dans la base de données.', 'error');
+    return;
+  }
+
+  db.push(entry);
+  saveDB('croquettes', db);
+  renderCroquettesList();
+  updateCroquettesSelect();
+
+  // Refresh buttons in results panel
+  const existingIds = new Set(loadDB('croquettes').map(c => c.id).filter(Boolean));
+  document.querySelectorAll('#opff-results button[onclick]').forEach(btn => {
+    const idx = parseInt(btn.getAttribute('onclick').match(/\d+/)?.[0]);
+    if (!isNaN(idx) && existingIds.has(opffSearchResults[idx]?.id)) {
+      btn.replaceWith(Object.assign(document.createElement('span'), {
+        className: 'px-2 py-1 text-xs bg-gray-100 text-gray-400 rounded-lg',
+        textContent: 'Déjà importé',
+      }));
+    }
+  });
+
+  setOPFFStatus(`✓ "${entry.nom || entry.marque}" importé — pensez à renseigner l'EPA+DHA manuellement.`, 'success');
+}
 
 // ===== INIT =====
 (function() {

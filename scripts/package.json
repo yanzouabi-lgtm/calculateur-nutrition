@@ -1,0 +1,14 @@
+{
+  "name": "calculateur-nutrition-import",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Script CLI d'import Open Pet Food Facts → Firebase",
+  "scripts": {
+    "dry-run": "node import-petfoodfacts.js --dry-run --max-pages=1",
+    "import":  "node import-petfoodfacts.js --max-pages=5"
+  },
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  }
+}
