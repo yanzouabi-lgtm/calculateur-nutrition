@@ -1102,10 +1102,10 @@ function saveHuile() {
   const concentration = parseFloat(document.getElementById('huile-concentration').value);
   const volume = parseFloat(document.getElementById('huile-volume').value);
   const prix   = parseFloat(document.getElementById('huile-prix').value);
-  if (!nom || isNaN(concentration) || isNaN(volume) || isNaN(prix)) { alert('Veuillez renseigner tous les champs.'); return; }
+  if (!nom || isNaN(concentration) || isNaN(volume)) { alert('Veuillez renseigner les champs obligatoires (*).'); return; }
   const db = loadDB('huiles'), eid = document.getElementById('huile-edit-id').value;
   const annee = parseInt(document.getElementById('huile-annee').value) || null;
-  const entry = { nom, concentration, volume, prix, annee };
+  const entry = { nom, concentration, volume, prix: isNaN(prix) ? 0 : prix, annee };
   if (eid) { const i = db.findIndex(h => h.id === eid); if (i !== -1) db[i] = { ...db[i], ...entry }; }
   else db.push({ id: genId(), ...entry });
   saveDB('huiles', db);
