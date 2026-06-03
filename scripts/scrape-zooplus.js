@@ -221,7 +221,8 @@ function parseAnalyticsBlock(text) {
     ash_percent:           extract(/cendres?\s+brutes?\s*[:\(]?\s*([\d,\.]+)\s*%/i),
     moisture_percent:      extract(/humidit[eé]\s*[:\(]?\s*([\d,\.]+)\s*%/i),
     linoleic_acid_percent: extract(/acide\s+linol[eé]ique[^\(]*\(\s*([\d,\.]+)\s*%/i),
-    epa_dha_percent:       extract(/EPA\s*[\/]?\s*DHA\s*\(?\s*([\d,\.]+)\s*%/i),
+    epa_dha_percent:       extract(/acides?\s+gras\s+EPA\s+et\s+DHA\s*([\d,\.]+)/i)
+                        || extract(/EPA\s*(?:et\s+|[+\/]\s*)DHA\s*[:\(]?\s*([\d,\.]+)/i),
     omega3_percent:        extract(/ac[iî]des?\s+gras\s+om[eé]ga[\s-]*3\s*\(?\s*([\d,\.]+)\s*%/i),
     omega6_percent:        extract(/ac[iî]des?\s+gras\s+om[eé]ga[\s-]*6\s*\(?\s*([\d,\.]+)\s*%/i),
     energy_kcal:           extract(/([\d,\.]+)\s*kcal\s*\/\s*kg/i),
