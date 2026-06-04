@@ -137,8 +137,8 @@
             <h2 class="font-semibold">Alimentation</h2>
           </div>
           <button onclick="openModal('modal-croquettes')" class="text-xs text-emerald-600 hover:text-emerald-800 font-medium flex items-center gap-1 transition">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-            Gérer la base de données
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Ajouter un produit
           </button>
         </div>
         <label class="block text-xs font-medium text-gray-500 mb-1">Aliment sélectionné</label>
@@ -183,8 +183,8 @@
           <div class="flex items-center justify-between mb-1">
             <label class="text-xs font-medium text-gray-500">Produit sélectionné</label>
             <button onclick="openModal('modal-huiles')" class="text-xs text-emerald-600 hover:text-emerald-800 font-medium flex items-center gap-1 transition">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-              Gérer
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              Ajouter un produit
             </button>
           </div>
           <div class="dd-wrap relative" id="dd-huile">
@@ -207,8 +207,8 @@
           <div class="flex items-center justify-between mb-1">
             <label class="text-xs font-medium text-gray-500">Produit sélectionné</label>
             <button onclick="openModal('modal-gelules')" class="text-xs text-emerald-600 hover:text-emerald-800 font-medium flex items-center gap-1 transition">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-              Gérer
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              Ajouter un produit
             </button>
           </div>
           <div class="dd-wrap relative" id="dd-gelule">
@@ -332,7 +332,11 @@
         </button>
       </div>
     </div>
-    <div class="p-5 border-b border-gray-100">
+    <div class="flex px-5 border-b border-gray-100">
+      <button data-tab="form" onclick="switchModalTab('modal-croquettes','form')" class="tab-btn px-1 mr-6 py-3 text-sm font-medium border-b-2 -mb-px transition text-emerald-600 border-emerald-500">Ajouter un produit</button>
+      <button data-tab="list" onclick="switchModalTab('modal-croquettes','list')" class="tab-btn px-1 py-3 text-sm font-medium border-b-2 -mb-px transition text-gray-500 border-transparent hover:text-gray-700">Gérer la base de données</button>
+    </div>
+    <div data-tab="form" class="tab-panel p-5">
       <h4 class="text-sm font-medium text-gray-600 mb-3" id="croque-form-title">Ajouter un aliment</h4>
       <input type="hidden" id="croque-edit-id">
       <div class="grid grid-cols-2 gap-3">
@@ -399,7 +403,7 @@
         <button onclick="resetCroquetteForm()" class="px-4 py-2 bg-gray-100 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Annuler</button>
       </div>
     </div>
-    <div class="p-5 max-h-72 overflow-y-auto" id="croquettes-list">
+    <div data-tab="list" class="tab-panel p-5 max-h-[60vh] overflow-y-auto hidden" id="croquettes-list">
       <p class="text-sm text-gray-400 text-center py-4">Aucun aliment enregistré</p>
     </div>
   </div>
@@ -447,7 +451,11 @@
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
     </div>
-    <div class="p-5 border-b border-gray-100">
+    <div class="flex px-5 border-b border-gray-100">
+      <button data-tab="form" onclick="switchModalTab('modal-huiles','form')" class="tab-btn px-1 mr-6 py-3 text-sm font-medium border-b-2 -mb-px transition text-emerald-600 border-emerald-500">Ajouter un produit</button>
+      <button data-tab="list" onclick="switchModalTab('modal-huiles','list')" class="tab-btn px-1 py-3 text-sm font-medium border-b-2 -mb-px transition text-gray-500 border-transparent hover:text-gray-700">Gérer la base de données</button>
+    </div>
+    <div data-tab="form" class="tab-panel p-5">
       <h4 class="text-sm font-medium text-gray-600 mb-3" id="huile-form-title">Ajouter une huile</h4>
       <input type="hidden" id="huile-edit-id">
       <div class="grid grid-cols-2 gap-3">
@@ -482,7 +490,7 @@
         <button onclick="resetHuileForm()" class="px-4 py-2 bg-gray-100 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Annuler</button>
       </div>
     </div>
-    <div class="p-5 max-h-56 overflow-y-auto" id="huiles-list">
+    <div data-tab="list" class="tab-panel p-5 max-h-[60vh] overflow-y-auto hidden" id="huiles-list">
       <p class="text-sm text-gray-400 text-center py-4">Aucune huile enregistrée</p>
     </div>
   </div>
@@ -497,7 +505,11 @@
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
     </div>
-    <div class="p-5 border-b border-gray-100">
+    <div class="flex px-5 border-b border-gray-100">
+      <button data-tab="form" onclick="switchModalTab('modal-gelules','form')" class="tab-btn px-1 mr-6 py-3 text-sm font-medium border-b-2 -mb-px transition text-emerald-600 border-emerald-500">Ajouter un produit</button>
+      <button data-tab="list" onclick="switchModalTab('modal-gelules','list')" class="tab-btn px-1 py-3 text-sm font-medium border-b-2 -mb-px transition text-gray-500 border-transparent hover:text-gray-700">Gérer la base de données</button>
+    </div>
+    <div data-tab="form" class="tab-panel p-5">
       <h4 class="text-sm font-medium text-gray-600 mb-3" id="gelule-form-title">Ajouter des gélules</h4>
       <input type="hidden" id="gelule-edit-id">
       <div class="grid grid-cols-2 gap-3">
@@ -527,7 +539,7 @@
         <button onclick="resetGeluleForm()" class="px-4 py-2 bg-gray-100 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Annuler</button>
       </div>
     </div>
-    <div class="p-5 max-h-56 overflow-y-auto" id="gelules-list">
+    <div data-tab="list" class="tab-panel p-5 max-h-[60vh] overflow-y-auto hidden" id="gelules-list">
       <p class="text-sm text-gray-400 text-center py-4">Aucune gélule enregistrée</p>
     </div>
   </div>
@@ -997,8 +1009,25 @@ function calculate() {
 }
 
 // ===== MODALS =====
-function openModal(id)  { document.getElementById(id).classList.add('active'); document.body.style.overflow = 'hidden'; }
+function openModal(id, tab) {
+  document.getElementById(id).classList.add('active');
+  document.body.style.overflow = 'hidden';
+  if (document.getElementById(id).querySelector('.tab-btn')) switchModalTab(id, tab || 'form');
+}
 function closeModal(id) { document.getElementById(id).classList.remove('active'); document.body.style.overflow = ''; }
+function switchModalTab(modalId, tab) {
+  const modal = document.getElementById(modalId);
+  modal.querySelectorAll('.tab-btn').forEach(btn => {
+    const active = btn.dataset.tab === tab;
+    btn.classList.toggle('text-emerald-600', active);
+    btn.classList.toggle('border-emerald-500', active);
+    btn.classList.toggle('text-gray-500', !active);
+    btn.classList.toggle('border-transparent', !active);
+  });
+  modal.querySelectorAll('.tab-panel').forEach(panel => {
+    panel.classList.toggle('hidden', panel.dataset.tab !== tab);
+  });
+}
 document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => {
   if (e.target !== m) return;
   if (m.id === 'modal-kparams') closeKParams();
@@ -1043,7 +1072,7 @@ function saveCroquette() {
   if (eid) { const i = db.findIndex(c => c.id === eid); if (i !== -1) db[i] = { ...db[i], ...entry }; }
   else db.push({ id: genId(), ...entry });
   saveDB('croquettes', db);
-  resetCroquetteForm(); renderCroquettesList(); updateCroquettesSelect(); calculate();
+  resetCroquetteForm(); renderCroquettesList(); switchModalTab('modal-croquettes','list'); updateCroquettesSelect(); calculate();
 }
 
 function resetCroquetteForm() {
@@ -1073,6 +1102,7 @@ function editCroquette(id) {
   document.getElementById('croque-form-title').textContent = "Modifier l'aliment";
   document.getElementById('croque-btn-text').textContent   = 'Enregistrer';
   renderENA();
+  switchModalTab('modal-croquettes','form');
 }
 
 function deleteCroquette(id) {
@@ -1175,7 +1205,7 @@ function saveHuile() {
   if (eid) { const i = db.findIndex(h => h.id === eid); if (i !== -1) db[i] = { ...db[i], ...entry }; }
   else db.push({ id: genId(), ...entry });
   saveDB('huiles', db);
-  resetHuileForm(); renderHuilesList(); updateHuilesSelect(); calculate();
+  resetHuileForm(); renderHuilesList(); switchModalTab('modal-huiles','list'); updateHuilesSelect(); calculate();
 }
 
 function resetHuileForm() {
@@ -1197,6 +1227,7 @@ function editHuile(id) {
   document.getElementById('huile-form-title').textContent = "Modifier l'huile";
   document.getElementById('huile-btn-text').textContent   = 'Enregistrer';
   updateHuileMgMl();
+  switchModalTab('modal-huiles','form');
 }
 
 function deleteHuile(id) {
@@ -1259,7 +1290,7 @@ function saveGelule() {
   if (eid) { const i = db.findIndex(g => g.id === eid); if (i !== -1) db[i] = { ...db[i], ...entry }; }
   else db.push({ id: genId(), ...entry });
   saveDB('gelules', db);
-  resetGeluleForm(); renderGelulesList(); updateGelulesSelect(); calculate();
+  resetGeluleForm(); renderGelulesList(); switchModalTab('modal-gelules','list'); updateGelulesSelect(); calculate();
 }
 
 function resetGeluleForm() {
@@ -1279,6 +1310,7 @@ function editGelule(id) {
   document.getElementById('gelule-annee').value   = g.annee || '';
   document.getElementById('gelule-form-title').textContent = 'Modifier les gélules';
   document.getElementById('gelule-btn-text').textContent   = 'Enregistrer';
+  switchModalTab('modal-gelules','form');
 }
 
 function deleteGelule(id) {

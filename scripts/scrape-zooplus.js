@@ -139,10 +139,16 @@ export async function scrapeProduct(page, url) {
     clone.querySelectorAll('script, style, noscript').forEach(el => el.remove());
     const text = clone.textContent;
 
-    return { name, brand, text, jsonLdText };
+    // Image principale du produit
+    const imgEl = document.querySelector('[class*="ProductImage"] img')
+               || [...document.querySelectorAll('img')]
+                    .find(img => img.src?.includes('media.zooplus.com') && !img.src.includes('logo'));
+    const imageUrl = imgEl?.src || imgEl?.dataset?.src || null;
+
+    return { name, brand, text, jsonLdText, imageUrl };
   });
 
-  const { name, brand, text, jsonLdText } = raw;
+  const { name, brand, text, jsonLdText, imageUrl } = raw;
   if (!name) return null;
 
   const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
@@ -173,10 +179,16 @@ export async function scrapeProduct(page, url) {
 
   const resolvedBrand = brand || extractBrandFromName(name);
 
+  // Passer à /800/ pour une meilleure résolution (400 par défaut sur Zooplus)
+  const highResImageUrl = imageUrl
+    ? imageUrl.replace(/\/(\d+)\/([^/]+\.(?:jpg|jpeg|png|webp))/i, '/800/$2')
+    : null;
+
   return {
     name:             cleanProductName(name, resolvedBrand),
     brand:            resolvedBrand,
     source_url:       url,
+    image_url:        highResImageUrl,
     ingredients_text: ingredientsText,
     nutrients:        parseAnalyticsBlock(analyticsBlock),
   };

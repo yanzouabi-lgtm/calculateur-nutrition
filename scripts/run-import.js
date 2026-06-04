@@ -17,7 +17,7 @@
 import 'dotenv/config';
 import { chromium }               from 'playwright';
 import { CATEGORY_URLS, scrapeCategory, scrapeProduct } from './scrape-zooplus.js';
-import { publishToOPFF, generatePseudoEAN }             from './publish-to-opff.js';
+import { publishToOPFF, uploadImageToOPFF, generatePseudoEAN } from './publish-to-opff.js';
 import { mapScrapedToEntry, saveProducts }              from './save-to-firebase.js';
 
 // ── Parsing des arguments ──────────────────────────────────────────────────
@@ -174,6 +174,13 @@ async function main() {
             opffCode = opffResult.opff_code;
             if (!opffResult.success && !DRY_RUN) {
               console.error('  ⚠  Publication OPFF échouée — on continue quand même');
+            } else if (opffResult.success && !DRY_RUN && product.image_url) {
+              const imgResult = await uploadImageToOPFF(opffCode, product.image_url);
+              if (imgResult.success) {
+                console.log('    📷 Photo uploadée sur OPFF');
+              } else {
+                console.log(`    ⚠  Photo non uploadée : ${imgResult.error}`);
+              }
             }
           }
 
