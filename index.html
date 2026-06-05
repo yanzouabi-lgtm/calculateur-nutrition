@@ -403,8 +403,13 @@
         <button onclick="resetCroquetteForm()" class="px-4 py-2 bg-gray-100 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Annuler</button>
       </div>
     </div>
-    <div data-tab="list" class="tab-panel p-5 max-h-[60vh] overflow-y-auto hidden" id="croquettes-list">
-      <p class="text-sm text-gray-400 text-center py-4">Aucun aliment enregistré</p>
+    <div data-tab="list" class="tab-panel hidden">
+      <div class="px-5 pt-4 pb-2">
+        <input type="text" id="croquettes-search" placeholder="Rechercher un aliment (nom, marque, espèce)…" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100" oninput="renderCroquettesList()">
+      </div>
+      <div id="croquettes-list" class="px-5 pb-5 max-h-[55vh] overflow-y-auto">
+        <p class="text-sm text-gray-400 text-center py-4">Aucun aliment enregistré</p>
+      </div>
     </div>
   </div>
 </div>
@@ -490,8 +495,13 @@
         <button onclick="resetHuileForm()" class="px-4 py-2 bg-gray-100 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Annuler</button>
       </div>
     </div>
-    <div data-tab="list" class="tab-panel p-5 max-h-[60vh] overflow-y-auto hidden" id="huiles-list">
-      <p class="text-sm text-gray-400 text-center py-4">Aucune huile enregistrée</p>
+    <div data-tab="list" class="tab-panel hidden">
+      <div class="px-5 pt-4 pb-2">
+        <input type="text" id="huiles-search" placeholder="Rechercher une huile…" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100" oninput="renderHuilesList()">
+      </div>
+      <div id="huiles-list" class="px-5 pb-5 max-h-[55vh] overflow-y-auto">
+        <p class="text-sm text-gray-400 text-center py-4">Aucune huile enregistrée</p>
+      </div>
     </div>
   </div>
 </div>
@@ -539,8 +549,13 @@
         <button onclick="resetGeluleForm()" class="px-4 py-2 bg-gray-100 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Annuler</button>
       </div>
     </div>
-    <div data-tab="list" class="tab-panel p-5 max-h-[60vh] overflow-y-auto hidden" id="gelules-list">
-      <p class="text-sm text-gray-400 text-center py-4">Aucune gélule enregistrée</p>
+    <div data-tab="list" class="tab-panel hidden">
+      <div class="px-5 pt-4 pb-2">
+        <input type="text" id="gelules-search" placeholder="Rechercher des gélules…" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100" oninput="renderGelulesList()">
+      </div>
+      <div id="gelules-list" class="px-5 pb-5 max-h-[55vh] overflow-y-auto">
+        <p class="text-sm text-gray-400 text-center py-4">Aucune gélule enregistrée</p>
+      </div>
     </div>
   </div>
 </div>
@@ -1114,8 +1129,11 @@ function deleteCroquette(id) {
 function renderCroquettesList() {
   const db = loadDB('croquettes');
   const el = document.getElementById('croquettes-list');
+  const query = (document.getElementById('croquettes-search')?.value || '').toLowerCase().trim();
+  const filtered = query ? db.filter(c => ((c.marque || '') + ' ' + c.nom + ' ' + (c.espece || '')).toLowerCase().includes(query)) : db;
   if (!db.length) { el.innerHTML = '<p class="text-sm text-gray-400 text-center py-4">Aucun aliment enregistré</p>'; return; }
-  el.innerHTML = db.map(c => {
+  if (!filtered.length) { el.innerHTML = '<p class="text-sm text-gray-400 text-center py-4">Aucun résultat pour cette recherche</p>'; return; }
+  el.innerHTML = filtered.map(c => {
     const em = calcEM(c), ena = calcENA(c);
     return `<div class="flex items-start justify-between p-3 bg-gray-50 rounded-xl mb-2 gap-2">
       <div class="flex-1 min-w-0">
@@ -1238,8 +1256,11 @@ function deleteHuile(id) {
 
 function renderHuilesList() {
   const db = loadDB('huiles'), el = document.getElementById('huiles-list');
+  const query = (document.getElementById('huiles-search')?.value || '').toLowerCase().trim();
+  const filtered = query ? db.filter(h => h.nom.toLowerCase().includes(query)) : db;
   if (!db.length) { el.innerHTML = '<p class="text-sm text-gray-400 text-center py-4">Aucune huile enregistrée</p>'; return; }
-  el.innerHTML = db.map(h => `<div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl mb-2 gap-2">
+  if (!filtered.length) { el.innerHTML = '<p class="text-sm text-gray-400 text-center py-4">Aucun résultat pour cette recherche</p>'; return; }
+  el.innerHTML = filtered.map(h => `<div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl mb-2 gap-2">
     <div class="flex-1 min-w-0">
       <div class="text-sm font-medium">${h.nom}${h.annee ? ' <span class="text-gray-400 font-normal text-xs">— Màj ' + h.annee + '</span>' : ''}</div>
       <div class="text-xs text-gray-400">${h.concentration}% EPA+DHA (${(h.concentration*10).toFixed(1)} mg/mL) — ${h.volume} mL — ${h.prix} €/flacon</div>
@@ -1321,8 +1342,11 @@ function deleteGelule(id) {
 
 function renderGelulesList() {
   const db = loadDB('gelules'), el = document.getElementById('gelules-list');
+  const query = (document.getElementById('gelules-search')?.value || '').toLowerCase().trim();
+  const filtered = query ? db.filter(g => g.nom.toLowerCase().includes(query)) : db;
   if (!db.length) { el.innerHTML = '<p class="text-sm text-gray-400 text-center py-4">Aucune gélule enregistrée</p>'; return; }
-  el.innerHTML = db.map(g => `<div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl mb-2 gap-2">
+  if (!filtered.length) { el.innerHTML = '<p class="text-sm text-gray-400 text-center py-4">Aucun résultat pour cette recherche</p>'; return; }
+  el.innerHTML = filtered.map(g => `<div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl mb-2 gap-2">
     <div class="flex-1 min-w-0">
       <div class="text-sm font-medium">${g.nom}${g.annee ? ' <span class="text-gray-400 font-normal text-xs">— Màj ' + g.annee + '</span>' : ''}</div>
       <div class="text-xs text-gray-400">${g.epa_dha_par_gelule} mg EPA+DHA/gélule — ${g.nb_gelules} gélules/boîte — ${g.prix} €/boîte</div>
@@ -1579,8 +1603,10 @@ function mapOPFFProduct(p) {
   const lower = ingredientsRaw.toLowerCase();
   const sourcesDetected = OPFF_OMEGA3_KEYWORDS.filter(kw => lower.includes(kw));
   const omega3Direct = n['omega-3-fat_100g'] != null ? parseFloat(n['omega-3-fat_100g']) : null;
-  const energyKcal = n['energy-kcal_100g']
-    ? parseFloat(n['energy-kcal_100g'])
+  const rawEnergyKcal = n['energy-kcal_100g'] ? parseFloat(n['energy-kcal_100g']) : null;
+  // Certains produits OPFF stockent la valeur en kcal/kg au lieu de kcal/100g — on divise par 10 si > 900
+  const energyKcal = rawEnergyKcal != null
+    ? (rawEnergyKcal > 900 ? rawEnergyKcal / 10 : rawEnergyKcal)
     : (n.energy_100g ? Math.round(parseFloat(n.energy_100g) / 4.184) : 0);
 
   return {

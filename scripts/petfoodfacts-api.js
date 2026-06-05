@@ -53,11 +53,11 @@ export function mapProductToEntry(p) {
     n['omega-3-fat_100g'] != null ? parseFloat(n['omega-3-fat_100g']) : null;
 
   // OPFF stocke l'énergie en kJ dans energy_100g et en kcal dans energy-kcal_100g
-  const energyKcal = n['energy-kcal_100g']
-    ? parseFloat(n['energy-kcal_100g'])
-    : n.energy_100g
-      ? Math.round(parseFloat(n.energy_100g) / 4.184)
-      : 0;
+  // Certains produits stockent la valeur en kcal/kg au lieu de kcal/100g — on divise par 10 si > 900
+  const rawEnergyKcal = n['energy-kcal_100g'] ? parseFloat(n['energy-kcal_100g']) : null;
+  const energyKcal = rawEnergyKcal != null
+    ? (rawEnergyKcal > 900 ? rawEnergyKcal / 10 : rawEnergyKcal)
+    : (n.energy_100g ? Math.round(parseFloat(n.energy_100g) / 4.184) : 0);
 
   return {
     id:      p.code || null,
